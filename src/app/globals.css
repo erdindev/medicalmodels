@@ -1,0 +1,96 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* MedAIHub Green Theme - matching screenshot */
+    --background: 120 20% 98%;
+    --foreground: 150 10% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 150 10% 15%;
+    --primary: 152 45% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 120 15% 94%;
+    --secondary-foreground: 150 10% 20%;
+    --muted: 120 10% 92%;
+    --muted-foreground: 150 5% 45%;
+    --accent: 152 35% 90%;
+    --accent-foreground: 152 45% 35%;
+    --border: 120 10% 88%;
+    --ring: 152 45% 45%;
+    --radius: 0.75rem;
+
+    /* Metric colors */
+    --success: 152 60% 40%;
+    --success-light: 152 50% 92%;
+    --warning: 45 90% 50%;
+    --warning-light: 45 80% 92%;
+    --danger: 0 70% 50%;
+    --danger-light: 0 60% 94%;
+  }
+
+  .dark {
+    --background: 150 15% 8%;
+    --foreground: 120 10% 95%;
+    --card: 150 12% 12%;
+    --card-foreground: 120 10% 95%;
+    --primary: 152 50% 50%;
+    --primary-foreground: 150 15% 8%;
+    --secondary: 150 10% 18%;
+    --secondary-foreground: 120 10% 90%;
+    --muted: 150 10% 20%;
+    --muted-foreground: 120 5% 60%;
+    --accent: 152 30% 25%;
+    --accent-foreground: 152 50% 70%;
+    --border: 150 10% 20%;
+    --ring: 152 50% 50%;
+  }
+}
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-border: hsl(var(--border));
+  --color-ring: hsl(var(--ring));
+  --radius: var(--radius);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}
+
+/* Custom scrollbar */
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+    border-radius: 3px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 3px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+  }
+}

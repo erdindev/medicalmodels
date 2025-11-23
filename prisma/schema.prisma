@@ -1,0 +1,353 @@
+// MedicalModels.co - Database Schema
+// NextAuth.js compatible + Medical AI Models
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// AUTH (NextAuth.js)
+// ============================================================================
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  role          String    @default("user") // "user", "pro", "admin"
+
+  // Subscription
+  plan          String    @default("free") // "free", "pro", "team"
+  stripeCustomerId String?
+
+  // Relations
+  accounts      Account[]
+  sessions      Session[]
+  savedModels   SavedModel[]
+  comparisons   Comparison[]
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+// ============================================================================
+// USER DATA
+// ============================================================================
+
+model SavedModel {
+  id        String   @id @default(cuid())
+  userId    String
+  modelId   String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notes     String?
+  createdAt DateTime @default(now())
+
+  @@unique([userId, modelId])
+  @@index([userId])
+}
+
+model Comparison {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String?
+  modelIds    String   // JSON array of model IDs
+  isPublic    Boolean  @default(false)
+  shareToken  String?  @unique
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+}
+
+// ============================================================================
+// MEDICAL MODELS
+// ============================================================================
+
+model MedicalModel {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  version     String
+  description String
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  specialtyId String
+  specialty   Specialty @relation(fields: [specialtyId], references: [id])
+
+  useCaseId   String
+  useCase     UseCase   @relation(fields: [useCaseId], references: [id])
+
+  // Relations
+  metrics     ModelMetrics?
+  training    TrainingInfo?
+  validation  ValidationInfo?
+  regulatory  RegulatoryInfo?
+  practical   PracticalInfo?
+  biasAnalyses BiasAnalysis[]
+  rocCurves   ROCCurve[]
+  tags        ModelTag[]
+  benchmarks  Benchmark[]
+
+  // Stats
+  downloads   Int      @default(0)
+  likes       Int      @default(0)
+  views       Int      @default(0)
+
+  metadata    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  publishedAt DateTime?
+
+  @@index([specialtyId])
+  @@index([useCaseId])
+  @@index([organizationId])
+}
+
+model ModelMetrics {
+  id          String @id @default(cuid())
+  modelId     String @unique
+  model       MedicalModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
+
+  sensitivity Float?
+  specificity Float?
+  accuracy    Float?
+  auc         Float?
+  f1Score     Float?
+  ppv         Float?
+  npv         Float?
+
+  sensitivityCI String?
+  specificityCI String?
+  aucCI         String?
+  additionalMetrics String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ROCCurve {
+  id         String @id @default(cuid())
+  modelId    String
+  model      MedicalModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  name       String
+  dataPoints String
+  auc        Float?
+  subgroupType  String?
+  subgroupValue String?
+  createdAt  DateTime @default(now())
+
+  @@index([modelId])
+}
+
+model TrainingInfo {
+  id              String @id @default(cuid())
+  modelId         String @unique
+  model           MedicalModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  datasetSize     Int?
+  datasetSource   String?
+  diversityScore  Float?
+  diversityNotes  String?
+  demographics    String?
+  geographicCoverage String?
+  dataStartDate   DateTime?
+  dataEndDate     DateTime?
+  preprocessingSteps String?
+  augmentationUsed Boolean @default(false)
+  augmentationDetails String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model ValidationInfo {
+  id                  String @id @default(cuid())
+  modelId             String @unique
+  model               MedicalModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  publicationCount    Int @default(0)
+  citationCount       Int @default(0)
+  clinicalTrialCount  Int @default(0)
+  clinicalTrialIds    String?
+  validationType      String?
+  externalValidation  Boolean @default(false)
+  externalValidationSites String?
+  peerReviewed        Boolean @default(false)
+  publicationLinks    String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model RegulatoryInfo {
+  id              String @id @default(cuid())
+  modelId         String @unique
+  model           MedicalModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  fdaApproved     Boolean @default(false)
+  fdaClass        String?
+  fda510kNumber   String?
+  fdaApprovalDate DateTime?
+  ceMark          Boolean @default(false)
+  ceClass         String?
+  ceApprovalDate  DateTime?
+  gdprCompliant   Boolean @default(false)
+  hipaaCompliant  Boolean @default(false)
+  otherCertifications String?
+  regulatoryDocuments String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model PracticalInfo {
+  id                  String @id @default(cuid())
+  modelId             String @unique
+  model               MedicalModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  accessType          String
+  licenseType         String?
+  licenseUrl          String?
+  costModel           String?
+  costDetails         String?
+  hardwareRequirements String?
+  minGpuVram          Int?
+  minRam              Int?
+  supportedPlatforms  String?
+  apiAvailable        Boolean @default(false)
+  apiDocumentationUrl String?
+  sdkLanguages        String?
+  hasSupport          Boolean @default(false)
+  supportType         String?
+  documentationUrl    String?
+  repositoryUrl       String?
+  demoUrl             String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model BiasAnalysis {
+  id            String @id @default(cuid())
+  modelId       String
+  model         MedicalModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  biasType      String
+  subgroupMetrics String
+  disparityScore Float?
+  assessmentMethod String?
+  limitations   String?
+  createdAt     DateTime @default(now())
+
+  @@index([modelId])
+}
+
+// ============================================================================
+// REFERENCE TABLES
+// ============================================================================
+
+model Organization {
+  id          String @id @default(cuid())
+  name        String @unique
+  slug        String @unique
+  type        String?
+  country     String?
+  website     String?
+  logoUrl     String?
+  description String?
+  models      MedicalModel[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Specialty {
+  id          String @id @default(cuid())
+  name        String @unique
+  slug        String @unique
+  description String?
+  iconName    String?
+  parentId    String?
+  parent      Specialty? @relation("SpecialtyHierarchy", fields: [parentId], references: [id])
+  children    Specialty[] @relation("SpecialtyHierarchy")
+  models      MedicalModel[]
+  createdAt   DateTime @default(now())
+}
+
+model UseCase {
+  id          String @id @default(cuid())
+  name        String @unique
+  slug        String @unique
+  description String?
+  category    String?
+  models      MedicalModel[]
+  createdAt   DateTime @default(now())
+}
+
+model Tag {
+  id        String @id @default(cuid())
+  name      String @unique
+  slug      String @unique
+  category  String?
+  models    ModelTag[]
+  createdAt DateTime @default(now())
+}
+
+model ModelTag {
+  modelId String
+  tagId   String
+  model   MedicalModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  tag     Tag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([modelId, tagId])
+}
+
+model Benchmark {
+  id          String @id @default(cuid())
+  modelId     String
+  model       MedicalModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  datasetName String
+  datasetVersion String?
+  metrics     String
+  rank        Int?
+  totalModels Int?
+  evaluationDate DateTime?
+  createdAt   DateTime @default(now())
+
+  @@index([modelId])
+}
