@@ -21,18 +21,11 @@ export function Navbar() {
 
           {/* Minimal Nav */}
           <div className="flex items-center gap-6 text-sm">
-
             <Link
               href="/models"
               className={`font-bold ${pathname.startsWith("/models") ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
             >
               Models
-            </Link>
-            <Link
-              href="/papers"
-              className={`font-bold ${pathname.startsWith("/papers") ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
-            >
-              Papers
             </Link>
             <UserMenu />
           </div>
