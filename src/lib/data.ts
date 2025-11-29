@@ -9,6 +9,8 @@ export interface MedicalModel {
   specialty: string;
   useCase: string;
   version: string;
+  architecture?: string;
+  journal?: string;
   metrics: {
     sensitivity: number;
     specificity: number;
@@ -47,8 +49,8 @@ export interface MedicalModel {
 export type Model = MedicalModel;
 
 export const specialties = [
-  "Radiology", "Pathology", "Cardiology", "Dermatology",
-  "Ophthalmology", "Oncology", "Neurology", "General Practice",
+  "Cardiology", "Radiology", "Neurology", "Ophthalmology",
+  "Oncology", "Pathology", "Gastroenterology", "Pulmonology", "Dermatology",
 ];
 
 export const useCases = [

@@ -55,7 +55,7 @@ export default function PapersPage() {
   });
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background bg-dot-grid">
       <div className="border-b border-border bg-card">
         <div className="mx-auto max-w-7xl px-4 py-8">
           <h1 className="text-3xl font-bold text-foreground">Research Papers</h1>

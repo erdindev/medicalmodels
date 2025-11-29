@@ -1,7 +1,7 @@
 
 export default function DatenschutzPage() {
     return (
-        <div className="container mx-auto max-w-3xl py-12 px-4">
+        <div className="min-h-screen bg-background bg-dot-grid container mx-auto max-w-3xl py-12 px-4">
             <h1 className="text-3xl font-bold mb-8">Datenschutzerklärung</h1>
 
             <div className="space-y-8 text-muted-foreground">

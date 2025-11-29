@@ -1,6 +1,3 @@
-// MedicalModels.co - Database Schema
-// NextAuth.js compatible + Medical AI Models
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,10 +6,6 @@ datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
-
-// ============================================================================
-// AUTH (NextAuth.js)
-// ============================================================================
 
 model Account {
   id                String  @id @default(cuid())
@@ -27,8 +20,7 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -50,102 +42,81 @@ model VerificationToken {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  role          String    @default("user") // "user", "pro", "admin"
-
-  // Subscription
-  plan          String    @default("free") // "free", "pro", "team"
+  id               String         @id @default(cuid())
+  name             String?
+  email            String?        @unique
+  emailVerified    DateTime?
+  image            String?
+  role             String         @default("user")
+  plan             String         @default("free")
   stripeCustomerId String?
-
-  // Relations
-  accounts      Account[]
-  sessions      Session[]
-  savedModels   SavedModel[]
-  comparisons   Comparison[]
-  uploadedModels MedicalModel[]
-
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  accounts         Account[]
+  comparisons      Comparison[]
+  uploadedModels   MedicalModel[]
+  savedModels      SavedModel[]
+  sessions         Session[]
 }
-
-// ============================================================================
-// USER DATA
-// ============================================================================
 
 model SavedModel {
   id        String   @id @default(cuid())
   userId    String
   modelId   String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   notes     String?
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, modelId])
   @@index([userId])
 }
 
 model Comparison {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name        String?
-  modelIds    String   // JSON array of model IDs
-  isPublic    Boolean  @default(false)
-  shareToken  String?  @unique
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(cuid())
+  userId     String
+  name       String?
+  modelIds   String
+  isPublic   Boolean  @default(false)
+  shareToken String?  @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
 
-// ============================================================================
-// MEDICAL MODELS
-// ============================================================================
-
 model MedicalModel {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  name        String
-  version     String
-  description String
-
+  id             String          @id @default(cuid())
+  slug           String          @unique
+  name           String
+  version        String
+  description    String
   organizationId String?
-  organization   Organization? @relation(fields: [organizationId], references: [id])
-
-  userId      String?
-  user        User?    @relation(fields: [userId], references: [id])
-
-  specialtyId String
-  specialty   Specialty @relation(fields: [specialtyId], references: [id])
-
-  useCaseId   String
-  useCase     UseCase   @relation(fields: [useCaseId], references: [id])
-
-  // Relations
-  metrics     ModelMetrics?
-  training    TrainingInfo?
-  validation  ValidationInfo?
-  regulatory  RegulatoryInfo?
-  practical   PracticalInfo?
-  biasAnalyses BiasAnalysis[]
-  rocCurves   ROCCurve[]
-  tags        ModelTag[]
-  benchmarks  Benchmark[]
-
-  // Stats
-  downloads   Int      @default(0)
-  likes       Int      @default(0)
-  views       Int      @default(0)
-
-  metadata    String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  publishedAt DateTime?
+  userId         String?
+  specialtyId    String
+  useCaseId      String
+  downloads      Int             @default(0)
+  likes          Int             @default(0)
+  views          Int             @default(0)
+  metadata       String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  publishedAt    DateTime?
+  architecture   String?
+  journal        String?
+  benchmarks     Benchmark[]
+  biasAnalyses   BiasAnalysis[]
+  useCase        UseCase         @relation(fields: [useCaseId], references: [id])
+  specialty      Specialty       @relation(fields: [specialtyId], references: [id])
+  user           User?           @relation(fields: [userId], references: [id])
+  organization   Organization?   @relation(fields: [organizationId], references: [id])
+  metrics        ModelMetrics?
+  tags           ModelTag[]
+  practical      PracticalInfo?
+  rocCurves      ROCCurve[]
+  regulatory     RegulatoryInfo?
+  training       TrainingInfo?
+  validation     ValidationInfo?
 
   @@index([specialtyId])
   @@index([useCaseId])
@@ -154,266 +125,238 @@ model MedicalModel {
 }
 
 model ModelMetrics {
-  id          String @id @default(cuid())
-  modelId     String @unique
-  model       MedicalModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
-
-  sensitivity Float?
-  specificity Float?
-  accuracy    Float?
-  auc         Float?
-  f1Score     Float?
-  ppv         Float?
-  npv         Float?
-
-  sensitivityCI String?
-  specificityCI String?
-  aucCI         String?
+  id                String       @id @default(cuid())
+  modelId           String       @unique
+  sensitivity       Float?
+  specificity       Float?
+  accuracy          Float?
+  auc               Float?
+  f1Score           Float?
+  ppv               Float?
+  npv               Float?
+  sensitivityCI     String?
+  specificityCI     String?
+  aucCI             String?
   additionalMetrics String?
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  model             MedicalModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
 }
 
 model ROCCurve {
-  id         String @id @default(cuid())
-  modelId    String
-  model      MedicalModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
-  name       String
-  dataPoints String
-  auc        Float?
+  id            String       @id @default(cuid())
+  modelId       String
+  name          String
+  dataPoints    String
+  auc           Float?
   subgroupType  String?
   subgroupValue String?
-  createdAt  DateTime @default(now())
+  createdAt     DateTime     @default(now())
+  model         MedicalModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
 
   @@index([modelId])
 }
 
 model TrainingInfo {
-  id              String @id @default(cuid())
-  modelId         String @unique
-  model           MedicalModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
-  datasetSize     Int?
-  datasetSource   String?
-  diversityScore  Float?
-  diversityNotes  String?
-  demographics    String?
-  geographicCoverage String?
-  dataStartDate   DateTime?
-  dataEndDate     DateTime?
-  preprocessingSteps String?
-  augmentationUsed Boolean @default(false)
+  id                  String       @id @default(cuid())
+  modelId             String       @unique
+  datasetSize         Int?
+  datasetSource       String?
+  diversityScore      Float?
+  diversityNotes      String?
+  demographics        String?
+  geographicCoverage  String?
+  dataStartDate       DateTime?
+  dataEndDate         DateTime?
+  preprocessingSteps  String?
+  augmentationUsed    Boolean      @default(false)
   augmentationDetails String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+  model               MedicalModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
 }
 
 model ValidationInfo {
-  id                  String @id @default(cuid())
-  modelId             String @unique
-  model               MedicalModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
-  publicationCount    Int @default(0)
-  citationCount       Int @default(0)
-  clinicalTrialCount  Int @default(0)
-  clinicalTrialIds    String?
-  validationType      String?
-  externalValidation  Boolean @default(false)
+  id                      String       @id @default(cuid())
+  modelId                 String       @unique
+  publicationCount        Int          @default(0)
+  citationCount           Int          @default(0)
+  clinicalTrialCount      Int          @default(0)
+  clinicalTrialIds        String?
+  validationType          String?
+  externalValidation      Boolean      @default(false)
   externalValidationSites String?
-  peerReviewed        Boolean @default(false)
-  publicationLinks    String?
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  peerReviewed            Boolean      @default(false)
+  publicationLinks        String?
+  createdAt               DateTime     @default(now())
+  updatedAt               DateTime     @updatedAt
+  model                   MedicalModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
 }
 
 model RegulatoryInfo {
-  id              String @id @default(cuid())
-  modelId         String @unique
-  model           MedicalModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
-  fdaApproved     Boolean @default(false)
-  fdaClass        String?
-  fda510kNumber   String?
-  fdaApprovalDate DateTime?
-  ceMark          Boolean @default(false)
-  ceClass         String?
-  ceApprovalDate  DateTime?
-  gdprCompliant   Boolean @default(false)
-  hipaaCompliant  Boolean @default(false)
+  id                  String       @id @default(cuid())
+  modelId             String       @unique
+  fdaApproved         Boolean      @default(false)
+  fdaClass            String?
+  fda510kNumber       String?
+  fdaApprovalDate     DateTime?
+  ceMark              Boolean      @default(false)
+  ceClass             String?
+  ceApprovalDate      DateTime?
+  gdprCompliant       Boolean      @default(false)
+  hipaaCompliant      Boolean      @default(false)
   otherCertifications String?
   regulatoryDocuments String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+  model               MedicalModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
 }
 
 model PracticalInfo {
-  id                  String @id @default(cuid())
-  modelId             String @unique
-  model               MedicalModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
-  accessType          String
-  licenseType         String?
-  licenseUrl          String?
-  costModel           String?
-  costDetails         String?
+  id                   String       @id @default(cuid())
+  modelId              String       @unique
+  accessType           String
+  licenseType          String?
+  licenseUrl           String?
+  costModel            String?
+  costDetails          String?
   hardwareRequirements String?
-  minGpuVram          Int?
-  minRam              Int?
-  supportedPlatforms  String?
-  apiAvailable        Boolean @default(false)
-  apiDocumentationUrl String?
-  sdkLanguages        String?
-  hasSupport          Boolean @default(false)
-  supportType         String?
-  documentationUrl    String?
-  repositoryUrl       String?
-  demoUrl             String?
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  minGpuVram           Int?
+  minRam               Int?
+  supportedPlatforms   String?
+  apiAvailable         Boolean      @default(false)
+  apiDocumentationUrl  String?
+  sdkLanguages         String?
+  hasSupport           Boolean      @default(false)
+  supportType          String?
+  documentationUrl     String?
+  repositoryUrl        String?
+  demoUrl              String?
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+  model                MedicalModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
 }
 
 model BiasAnalysis {
-  id            String @id @default(cuid())
-  modelId       String
-  model         MedicalModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
-  biasType      String
-  subgroupMetrics String
-  disparityScore Float?
+  id               String       @id @default(cuid())
+  modelId          String
+  biasType         String
+  subgroupMetrics  String
+  disparityScore   Float?
   assessmentMethod String?
-  limitations   String?
-  createdAt     DateTime @default(now())
+  limitations      String?
+  createdAt        DateTime     @default(now())
+  model            MedicalModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
 
   @@index([modelId])
 }
 
-// ============================================================================
-// REFERENCE TABLES
-// ============================================================================
-
 model Organization {
-  id          String @id @default(cuid())
-  name        String @unique
-  slug        String @unique
+  id          String         @id @default(cuid())
+  name        String         @unique
+  slug        String         @unique
   type        String?
   country     String?
   website     String?
   logoUrl     String?
   description String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
   models      MedicalModel[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 }
 
 model Specialty {
-  id          String @id @default(cuid())
-  name        String @unique
-  slug        String @unique
+  id          String         @id @default(cuid())
+  name        String         @unique
+  slug        String         @unique
   description String?
   iconName    String?
   parentId    String?
-  parent      Specialty? @relation("SpecialtyHierarchy", fields: [parentId], references: [id])
-  children    Specialty[] @relation("SpecialtyHierarchy")
+  createdAt   DateTime       @default(now())
   models      MedicalModel[]
-  createdAt   DateTime @default(now())
+  parent      Specialty?     @relation("SpecialtyHierarchy", fields: [parentId], references: [id])
+  children    Specialty[]    @relation("SpecialtyHierarchy")
 }
 
 model UseCase {
-  id          String @id @default(cuid())
-  name        String @unique
-  slug        String @unique
+  id          String         @id @default(cuid())
+  name        String         @unique
+  slug        String         @unique
   description String?
   category    String?
+  createdAt   DateTime       @default(now())
   models      MedicalModel[]
-  createdAt   DateTime @default(now())
 }
 
 model Tag {
-  id        String @id @default(cuid())
-  name      String @unique
-  slug      String @unique
+  id        String     @id @default(cuid())
+  name      String     @unique
+  slug      String     @unique
   category  String?
+  createdAt DateTime   @default(now())
   models    ModelTag[]
-  createdAt DateTime @default(now())
 }
 
 model ModelTag {
   modelId String
   tagId   String
+  tag     Tag          @relation(fields: [tagId], references: [id], onDelete: Cascade)
   model   MedicalModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
-  tag     Tag @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   @@id([modelId, tagId])
 }
 
 model Benchmark {
-  id          String @id @default(cuid())
-  modelId     String
-  model       MedicalModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
-  datasetName String
+  id             String       @id @default(cuid())
+  modelId        String
+  datasetName    String
   datasetVersion String?
-  metrics     String
-  rank        Int?
-  totalModels Int?
+  metrics        String
+  rank           Int?
+  totalModels    Int?
   evaluationDate DateTime?
-  createdAt   DateTime @default(now())
+  createdAt      DateTime     @default(now())
+  model          MedicalModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
 
   @@index([modelId])
 }
 
-// ============================================================================
-// SCRAPED PAPERS (from PubMed, arXiv, etc.)
-// ============================================================================
-
 model ScrapedPaper {
-  id          String   @id @default(cuid())
-
-  // Identifiers
-  pmid        String?  @unique  // PubMed ID
-  pmcId       String?           // PubMed Central ID
-  doi         String?           // Digital Object Identifier
-  arxivId     String?  @unique  // arXiv ID
-
-  // Basic Info
-  title       String
-  abstract    String
-  authors     String            // JSON array
-  journal     String?
-  pubDate     String?
-
-  // Classification
-  specialty   String            // radiology, pathology, dermatology, etc.
-  keywords    String?           // JSON array
-  meshTerms   String?           // JSON array (PubMed MeSH terms)
-
-  // Links
-  pubmedUrl   String?
-  arxivUrl    String?
-  pdfUrl      String?
-  githubUrl   String?
-  codeLinks   String?           // JSON array of all code repository links
-  datasetUrl  String?
-  demoUrl     String?
-
-  // Model Info (extracted or linked)
-  hasModel    Boolean  @default(false)
-  modelName   String?
-  modelId     String?           // Link to MedicalModel if we create one
-
-  // Processing Status
-  isProcessed Boolean  @default(false)
-  isReviewed  Boolean  @default(false)
-  notes       String?
-
-  // Metrics (if extractable from paper)
-  reportedAuc       Float?
-  reportedAccuracy  Float?
+  id                  String   @id @default(cuid())
+  pmid                String?  @unique
+  pmcId               String?
+  doi                 String?
+  arxivId             String?  @unique
+  title               String
+  abstract            String
+  authors             String
+  journal             String?
+  pubDate             String?
+  specialty           String
+  keywords            String?
+  meshTerms           String?
+  pubmedUrl           String?
+  arxivUrl            String?
+  pdfUrl              String?
+  githubUrl           String?
+  codeLinks           String?
+  datasetUrl          String?
+  demoUrl             String?
+  hasModel            Boolean  @default(false)
+  modelName           String?
+  modelId             String?
+  isProcessed         Boolean  @default(false)
+  isReviewed          Boolean  @default(false)
+  notes               String?
+  reportedAuc         Float?
+  reportedAccuracy    Float?
   reportedSensitivity Float?
   reportedSpecificity Float?
-  datasetSize       Int?
-  datasetName       String?
-
-  // Stats
-  citationCount Int?
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  datasetSize         Int?
+  datasetName         String?
+  citationCount       Int?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   @@index([specialty])
   @@index([hasModel])

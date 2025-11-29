@@ -83,7 +83,7 @@ export default function UploadPage() {
     };
 
     return (
-        <div className="container max-w-2xl py-10">
+        <div className="min-h-screen bg-background bg-dot-grid container max-w-2xl py-10">
             <Link
                 href="/dashboard"
                 className="inline-flex items-center text-sm text-muted-foreground hover:text-primary mb-6"

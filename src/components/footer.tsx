@@ -26,7 +26,7 @@ export function Footer() {
                         <h3 className="font-semibold text-foreground mb-4">Platform</h3>
                         <ul className="space-y-2 text-sm text-muted-foreground">
                             <li><Link href="/models" className="hover:text-primary">Browse Models</Link></li>
-                            <li><Link href="/compare" className="hover:text-primary">Compare</Link></li>
+
                             <li><Link href="/papers" className="hover:text-primary">Research Papers</Link></li>
                         </ul>
                     </div>

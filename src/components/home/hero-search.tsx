@@ -3,19 +3,94 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { demoModels, specialties } from "@/lib/data";
+import { MedicalModel } from "@/lib/data";
 
-export function HeroSearch() {
+interface HeroSearchProps {
+    modelCount?: number;
+    specialtyCount?: number;
+}
+
+export function HeroSearch({ modelCount = 0, specialtyCount = 0 }: HeroSearchProps) {
     const router = useRouter();
     const [query, setQuery] = useState("");
     const [showResults, setShowResults] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
+    const [models, setModels] = useState<MedicalModel[]>([]);
+    const [selectedIndex, setSelectedIndex] = useState(-1);
 
     const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if ((e.key === "f" || e.key === "F") && !e.ctrlKey && !e.metaKey) {
+        async function fetchModels() {
+            try {
+                const res = await fetch('/api/models?limit=100');
+                const data = await res.json();
+                const mapped = data.map((m: any) => ({
+                    ...m,
+                    specialty: m.specialty?.name || 'General',
+                    metrics: {
+                        sensitivity: m.metrics?.sensitivity ?? 0,
+                        specificity: m.metrics?.specificity ?? 0,
+                        auc: m.metrics?.auc ?? 0,
+                        accuracy: m.metrics?.accuracy ?? 0
+                    },
+                    tags: m.tags?.map((t: any) => t.tag.name) || []
+                }));
+                setModels(mapped);
+            } catch (e) {
+                console.error(e);
+            }
+        }
+        fetchModels();
+    }, []);
+
+    const results = useMemo(() => {
+        if (!query.trim()) {
+            return models.slice(0, 5);
+        }
+        const q = query.toLowerCase();
+        return models.filter(
+            (m) =>
+                m.name.toLowerCase().includes(q) ||
+                m.specialty.toLowerCase().includes(q) ||
+                m.tags.some((t) => t.includes(q))
+        ).slice(0, 6);
+    }, [query, models]);
+
+    // Reset selected index when results change
+    useEffect(() => {
+        setSelectedIndex(-1);
+    }, [results]);
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (!showResults || !isFocused) return;
+
+        const totalItems = results.length + 1; // +1 for "View all models"
+
+        if (e.key === "ArrowDown") {
+            e.preventDefault();
+            setSelectedIndex((prev) => (prev + 1) % totalItems);
+        } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            setSelectedIndex((prev) => (prev - 1 + totalItems) % totalItems);
+        } else if (e.key === "Enter" && selectedIndex >= 0) {
+            e.preventDefault();
+            if (selectedIndex < results.length) {
+                router.push(`/models/${results[selectedIndex].slug}`);
+            } else {
+                router.push(`/models${query ? `?q=${encodeURIComponent(query)}` : ''}`);
+            }
+            setIsFocused(false);
+            setShowResults(false);
+        } else if (e.key === "Escape") {
+            setIsFocused(false);
+            inputRef.current?.blur();
+        }
+    };
+
+    useEffect(() => {
+        const handleGlobalKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "/" && !e.ctrlKey && !e.metaKey) {
                 if (document.activeElement?.tagName !== "INPUT" && document.activeElement?.tagName !== "TEXTAREA") {
                     e.preventDefault();
                     inputRef.current?.focus();
@@ -23,71 +98,58 @@ export function HeroSearch() {
             }
         };
 
-        window.addEventListener("keydown", handleKeyDown);
-        return () => window.removeEventListener("keydown", handleKeyDown);
+        window.addEventListener("keydown", handleGlobalKeyDown);
+        return () => window.removeEventListener("keydown", handleGlobalKeyDown);
     }, []);
-
-    const results = useMemo(() => {
-        if (!query.trim()) {
-            // Return alphabetical suggestions when query is empty
-            return demoModels
-                .sort((a, b) => a.name.localeCompare(b.name))
-                .slice(0, 5);
-        }
-        const q = query.toLowerCase();
-        return demoModels.filter(
-            (m) =>
-                m.name.toLowerCase().includes(q) ||
-                m.specialty.toLowerCase().includes(q) ||
-                m.tags.some((t) => t.includes(q))
-        ).slice(0, 6);
-    }, [query]);
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
-        if (query.trim()) {
+        if (selectedIndex >= 0 && selectedIndex < results.length) {
+            router.push(`/models/${results[selectedIndex].slug}`);
+        } else {
             router.push(`/models?q=${encodeURIComponent(query)}`);
-            setIsFocused(false); // Close search results on submit
         }
+        setIsFocused(false);
     };
 
     return (
-        <div className="relative bg-gradient-to-b from-primary/10 via-background to-background pb-12 pt-16">
+        <div className="relative">
             {/* Dimming Overlay */}
             {isFocused && (
                 <div
-                    className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm transition-all duration-300"
+                    className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[2px] transition-all duration-200"
                     onClick={() => setIsFocused(false)}
                 />
             )}
 
-            <section className="relative mx-auto max-w-4xl px-4 text-center">
-                <div className="mb-8 inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-sm text-primary">
-                    <span className="mr-2 flex h-2 w-2 rounded-full bg-primary"></span>
-                    Now with 500+ Medical AI Models
-                </div>
-
-                <h1 className="mb-6 text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl">
-                    Find <span className="text-primary">Medical AI Models</span> <br />
-                    for Clinical & Research Use
+            <section className="relative mx-auto max-w-4xl px-4 min-h-[40vh] flex flex-col items-center justify-center text-center">
+                {/* Minimal headline */}
+                <h1 className="mb-4 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+                    Discover Medical AI Models
                 </h1>
 
-                <p className="mx-auto mb-10 max-w-2xl text-lg text-muted-foreground">
-                    Discover verified medical AI models for clinical use.
-                </p>
 
-                {/* Search Input - Enhanced */}
-                <form onSubmit={handleSearch} className="relative z-50 mx-auto max-w-2xl transition-all duration-300">
-                    <div className={`relative ${isFocused ? 'scale-105' : ''} transition-transform duration-300`}>
-                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 gap-2">
-                            <svg className={`h-5 w-5 transition-colors ${isFocused ? 'text-primary' : 'text-muted-foreground'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                {/* Search Input - Large, centered, prominent */}
+                <form onSubmit={handleSearch} className="relative z-50 mx-auto w-full">
+                    {/* Background image behind search */}
+                    <div className="absolute -inset-y-24 -inset-x-16 -z-10 overflow-hidden rounded-3xl">
+                        <img
+                            src="/bgfarbe.jpg"
+                            alt=""
+                            className="absolute inset-0 h-full w-full object-fill opacity-40 blur-[2px]"
+                        />
+                    </div>
+
+                    <div className={`relative transition-transform duration-200 ${isFocused ? 'scale-[1.02]' : ''}`}>
+                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-5">
+                            <svg
+                                className={`h-5 w-5 transition-colors ${isFocused ? 'text-primary' : 'text-muted-foreground'}`}
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
-                            {!isFocused && !query && (
-                                <span className="hidden sm:inline-flex h-5 w-5 items-center justify-center rounded border border-muted-foreground/30 bg-muted text-[10px] font-medium text-muted-foreground">
-                                    F
-                                </span>
-                            )}
                         </div>
                         <input
                             ref={inputRef}
@@ -101,24 +163,25 @@ export function HeroSearch() {
                                 setIsFocused(true);
                                 setShowResults(true);
                             }}
-                            placeholder="Search by model name, specialty, or condition..."
-                            className={`w-full rounded-2xl border bg-background py-4 pl-12 pr-4 text-lg shadow-sm transition-all placeholder:text-muted-foreground focus:outline-none ${isFocused
-                                ? 'border-primary ring-4 ring-primary/20 shadow-xl'
-                                : 'border-border'
-                                }`}
-                            autoFocus
+                            onKeyDown={handleKeyDown}
+                            placeholder="Search models, specialties, conditions..."
+                            className={`w-full rounded-xl border bg-white py-4 pl-14 pr-14 text-base shadow-sm transition-all placeholder:text-muted-foreground focus:outline-none ${
+                                isFocused
+                                    ? 'border-primary ring-2 ring-primary/20 shadow-lg'
+                                    : 'border-border hover:border-muted-foreground/50'
+                            }`}
                         />
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4">
+                            <kbd className="hidden sm:inline-flex h-6 items-center gap-1 rounded border border-border bg-muted px-2 font-mono text-xs text-muted-foreground">
+                                /
+                            </kbd>
+                        </div>
                     </div>
 
                     {/* Search Results Dropdown */}
-                    {showResults && isFocused && (
-                        <div className="absolute left-0 right-0 top-full z-50 mt-2 rounded-xl border border-border bg-card shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-                            {!query.trim() && (
-                                <div className="bg-muted/30 px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                                    Suggested Models
-                                </div>
-                            )}
-                            {results.map((model) => (
+                    {showResults && isFocused && results.length > 0 && (
+                        <div className="absolute left-0 right-0 top-full z-50 mt-2 rounded-xl border border-border bg-card shadow-xl overflow-hidden">
+                            {results.map((model, idx) => (
                                 <Link
                                     key={model.id}
                                     href={`/models/${model.slug}`}
@@ -126,49 +189,38 @@ export function HeroSearch() {
                                         setShowResults(false);
                                         setIsFocused(false);
                                     }}
-                                    className="flex items-center justify-between px-4 py-3 hover:bg-primary/5 transition-colors border-b border-border/50 last:border-0 group"
+                                    className={`flex items-center justify-between px-4 py-3 transition-colors ${
+                                        idx !== results.length - 1 ? 'border-b border-border/50' : ''
+                                    } ${selectedIndex === idx ? 'bg-[#C0EFFF]' : 'hover:bg-[#C0EFFF]'}`}
                                 >
-                                    <div className="text-left flex items-center gap-3">
-                                        <div className="bg-primary/10 p-2 rounded-lg text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                                            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            <p className="font-medium text-foreground">{model.name}</p>
-                                            <p className="text-sm text-muted-foreground">{model.specialty}</p>
-                                        </div>
+                                    <div className="text-left">
+                                        <p className="font-medium text-foreground text-sm">{model.name}</p>
+                                        <p className="text-xs text-muted-foreground">{model.specialty}</p>
                                     </div>
-                                    <div className="text-right">
-                                        <p className="text-sm font-bold text-primary">{(model.metrics.auc * 100).toFixed(0)}%</p>
-                                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground">AUC</p>
-                                    </div>
+                                    {model.metrics.auc > 0 && (
+                                        <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded">
+                                            AUC {(model.metrics.auc * 100).toFixed(0)}%
+                                        </span>
+                                    )}
                                 </Link>
                             ))}
-                            {query.trim() && (
-                                <Link
-                                    href={`/models?q=${encodeURIComponent(query)}`}
-                                    className="block bg-muted/30 px-4 py-3 text-center text-sm font-medium text-primary hover:bg-muted/50 transition-colors"
-                                >
-                                    View all results
-                                </Link>
-                            )}
+                            <Link
+                                href={`/models${query ? `?q=${encodeURIComponent(query)}` : ''}`}
+                                onClick={() => setIsFocused(false)}
+                                className={`block px-4 py-3 text-center text-sm text-primary transition-colors border-t border-border ${
+                                    selectedIndex === results.length ? 'bg-[#C0EFFF]' : 'hover:bg-[#C0EFFF]'
+                                }`}
+                            >
+                                View all models →
+                            </Link>
                         </div>
                     )}
                 </form>
 
-                {/* Quick Filters */}
-                <div className={`mt-8 flex flex-wrap justify-center gap-2 transition-opacity duration-300 ${isFocused ? 'opacity-50 blur-sm' : 'opacity-100'}`}>
-                    {specialties.slice(0, 6).map((s) => (
-                        <Link
-                            key={s}
-                            href={`/models?specialty=${s}`}
-                            className="rounded-full border border-border bg-background/50 px-4 py-1.5 text-sm font-medium text-muted-foreground transition-all hover:border-primary hover:bg-primary/5 hover:text-primary"
-                        >
-                            {s}
-                        </Link>
-                    ))}
-                </div>
+                {/* Trusted by line */}
+                <p className="mt-6 text-sm text-muted-foreground">
+                    Trusted by professionals
+                </p>
             </section>
         </div>
     );

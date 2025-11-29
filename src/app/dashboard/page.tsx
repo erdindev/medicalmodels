@@ -29,7 +29,7 @@ export default async function DashboardPage() {
     });
 
     return (
-        <div className="container py-10">
+        <div className="min-h-screen bg-background bg-dot-grid container py-10">
             <div className="flex items-center justify-between mb-8">
                 <div>
                     <h1 className="text-3xl font-bold">Dashboard</h1>
