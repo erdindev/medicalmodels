@@ -150,7 +150,7 @@ export default function DisclaimerPage() {
         {/* Last Updated */}
         <section className="border-t border-border pt-6">
           <p className="text-sm text-muted-foreground">
-            Last updated: November 2024
+            Last updated: December 2025
           </p>
           <p className="text-sm text-muted-foreground mt-2">
             For questions regarding this disclaimer, please see our{" "}
