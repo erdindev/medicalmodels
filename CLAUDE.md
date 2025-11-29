@@ -111,3 +111,17 @@ npx tsx prisma/seed.ts
 - **Free**: Browse, 5 saved models, basic compare
 - **Pro ($9/mo)**: Unlimited saves, advanced compare, PDF export, API
 - **Team ($29/mo)**: 5 members, shared comparisons, priority support
+
+## Common Problems
+
+### ERR_CONNECTION_RESET in Krankenhaus-/Unternehmens-Netzwerken
+**Problem**: Seite lädt nicht, Browser zeigt "ERR_CONNECTION_RESET"
+
+**Ursache**: Restriktive Firewalls in Krankenhaus- oder Unternehmensnetzwerken blockieren unbekannte/neue Domains. Keine Server-Konfiguration kann das beheben.
+
+**Lösungen**:
+- Über mobiles Netz (nicht WLAN) testen - wenn es dort funktioniert, liegt es am Netzwerk
+- IT-Abteilung bitten, `medicalmodels.co` auf die Whitelist zu setzen
+- VPN verwenden (falls erlaubt)
+
+**Nicht das Problem**: SSL-Zertifikat, Nginx-Konfiguration oder Server sind korrekt konfiguriert (HTTPS/443).

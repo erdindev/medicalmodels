@@ -7,7 +7,7 @@ import GitHubProvider from "next-auth/providers/github";
 const prisma = new PrismaClient();
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(prisma) as any,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -22,9 +22,7 @@ export const authOptions: NextAuthOptions = {
     async session({ session, user }) {
       if (session.user) {
         session.user.id = user.id;
-        // @ts-expect-error - extending session type
         session.user.role = user.role;
-        // @ts-expect-error - extending session type
         session.user.plan = user.plan;
       }
       return session;

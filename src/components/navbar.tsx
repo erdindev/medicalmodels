@@ -16,26 +16,26 @@ export function Navbar() {
             <svg className="h-6 w-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
             </svg>
-            <span className="font-semibold">MedicalModels</span>
+            <span className="font-semibold">medicalmodels.co</span>
           </Link>
 
           {/* Minimal Nav */}
           <div className="flex items-center gap-6 text-sm">
             <Link
               href="/compare"
-              className={pathname.startsWith("/compare") ? "text-foreground" : "text-muted-foreground hover:text-foreground"}
+              className={`font-bold ${pathname.startsWith("/compare") ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
             >
               Compare
             </Link>
             <Link
-              href="/datasets"
-              className={pathname.startsWith("/datasets") ? "text-foreground" : "text-muted-foreground hover:text-foreground"}
+              href="/models"
+              className={`font-bold ${pathname.startsWith("/models") ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
             >
-              Datasets
+              Models
             </Link>
             <Link
               href="/papers"
-              className={pathname.startsWith("/papers") ? "text-foreground" : "text-muted-foreground hover:text-foreground"}
+              className={`font-bold ${pathname.startsWith("/papers") ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
             >
               Papers
             </Link>

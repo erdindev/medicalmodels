@@ -1,10 +1,15 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Lato } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { Providers } from "@/components/providers";
+import { Footer } from "@/components/footer";
 
-const inter = Inter({ subsets: ["latin"] });
+const lato = Lato({
+  subsets: ["latin"],
+  weight: ["100", "300", "400", "700", "900"],
+  variable: "--font-lato",
+});
 
 export const metadata: Metadata = {
   title: "MedicalModels - AI Models for Healthcare",
@@ -18,10 +23,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={lato.className}>
         <Providers>
           <Navbar />
-          <main>{children}</main>
+          <main className="min-h-screen">{children}</main>
+          <Footer />
         </Providers>
       </body>
     </html>

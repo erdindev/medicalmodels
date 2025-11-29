@@ -2,24 +2,24 @@
 
 @layer base {
   :root {
-    /* MedAIHub Green Theme - matching screenshot */
-    --background: 120 20% 98%;
-    --foreground: 150 10% 15%;
+    /* MedAIHub Purple Theme - #A171F5 */
+    --background: 262 20% 99%;
+    --foreground: 262 40% 10%;
     --card: 0 0% 100%;
-    --card-foreground: 150 10% 15%;
-    --primary: 152 45% 45%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 120 15% 94%;
-    --secondary-foreground: 150 10% 20%;
-    --muted: 120 10% 92%;
-    --muted-foreground: 150 5% 45%;
-    --accent: 152 35% 90%;
-    --accent-foreground: 152 45% 35%;
-    --border: 120 10% 88%;
-    --ring: 152 45% 45%;
+    --card-foreground: 262 40% 10%;
+    --primary: 262 87% 70%;
+    --primary-foreground: 262 40% 10%;
+    --secondary: 262 30% 92%;
+    --secondary-foreground: 262 40% 20%;
+    --muted: 262 20% 94%;
+    --muted-foreground: 262 10% 45%;
+    --accent: 262 30% 92%;
+    --accent-foreground: 262 40% 20%;
+    --border: 262 20% 90%;
+    --ring: 262 87% 70%;
     --radius: 0.75rem;
 
-    /* Metric colors */
+    /* Metric colors - adjusted to harmonize */
     --success: 152 60% 40%;
     --success-light: 152 50% 92%;
     --warning: 45 90% 50%;
@@ -29,20 +29,20 @@
   }
 
   .dark {
-    --background: 150 15% 8%;
-    --foreground: 120 10% 95%;
-    --card: 150 12% 12%;
-    --card-foreground: 120 10% 95%;
-    --primary: 152 50% 50%;
-    --primary-foreground: 150 15% 8%;
-    --secondary: 150 10% 18%;
-    --secondary-foreground: 120 10% 90%;
-    --muted: 150 10% 20%;
-    --muted-foreground: 120 5% 60%;
-    --accent: 152 30% 25%;
-    --accent-foreground: 152 50% 70%;
-    --border: 150 10% 20%;
-    --ring: 152 50% 50%;
+    --background: 262 40% 5%;
+    --foreground: 262 20% 95%;
+    --card: 262 30% 8%;
+    --card-foreground: 262 20% 95%;
+    --primary: 262 87% 70%;
+    --primary-foreground: 262 40% 10%;
+    --secondary: 262 30% 15%;
+    --secondary-foreground: 262 20% 90%;
+    --muted: 262 20% 15%;
+    --muted-foreground: 262 10% 60%;
+    --accent: 262 30% 20%;
+    --accent-foreground: 262 20% 90%;
+    --border: 262 20% 15%;
+    --ring: 262 87% 70%;
   }
 }
 

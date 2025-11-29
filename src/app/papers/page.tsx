@@ -1,174 +1,198 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { demoPapers, paperSpecialties, Paper } from "@/lib/papers";
-import { formatNumber } from "@/lib/utils";
+import { useState, useEffect } from "react";
+
+interface ScrapedPaper {
+  id: string;
+  title: string;
+  abstract: string;
+  authors: string;
+  journal: string | null;
+  pubDate: string | null;
+  specialty: string;
+  pubmedUrl: string | null;
+  githubUrl: string | null;
+  hasModel: boolean;
+  doi: string | null;
+}
+
+const SPECIALTIES = ["radiology", "pathology", "dermatology"];
 
 export default function PapersPage() {
+  const [papers, setPapers] = useState<ScrapedPaper[]>([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSpecialty, setSelectedSpecialty] = useState("");
-  const [sortBy, setSortBy] = useState<"citations" | "year">("citations");
+  const [hasCodeOnly, setHasCodeOnly] = useState(false);
 
-  const filteredPapers = useMemo(() => {
-    let papers = demoPapers.filter((paper) => {
-      if (searchQuery) {
-        const q = searchQuery.toLowerCase();
-        const matches =
-          paper.title.toLowerCase().includes(q) ||
-          paper.abstract.toLowerCase().includes(q) ||
-          paper.authors.some((a) => a.toLowerCase().includes(q)) ||
-          paper.tags.some((t) => t.toLowerCase().includes(q));
-        if (!matches) return false;
-      }
-      if (selectedSpecialty && paper.specialty !== selectedSpecialty) return false;
-      return true;
-    });
+  useEffect(() => {
+    fetchPapers();
+  }, [selectedSpecialty, hasCodeOnly]);
 
-    // Sort
-    if (sortBy === "citations") {
-      papers = papers.sort((a, b) => b.citations - a.citations);
-    } else {
-      papers = papers.sort((a, b) => b.year - a.year);
+  async function fetchPapers() {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (selectedSpecialty) params.set("specialty", selectedSpecialty);
+      if (hasCodeOnly) params.set("hasModel", "true");
+      params.set("limit", "200");
+
+      const res = await fetch("/api/papers?" + params.toString());
+      const data = await res.json();
+      setPapers(data.papers || []);
+      setTotal(data.total || 0);
+    } catch (e) {
+      console.error("Error fetching papers:", e);
     }
+    setLoading(false);
+  }
 
-    return papers;
-  }, [searchQuery, selectedSpecialty, sortBy]);
+  const filteredPapers = papers.filter((p) => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    return p.title.toLowerCase().includes(q) || p.abstract.toLowerCase().includes(q);
+  });
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <div className="border-b border-border bg-card">
         <div className="mx-auto max-w-7xl px-4 py-8">
           <h1 className="text-3xl font-bold text-foreground">Research Papers</h1>
           <p className="mt-2 text-muted-foreground">
-            Key publications in medical AI research and model development
+            {total} deep learning papers in medical imaging from PubMed
           </p>
 
-          {/* Search & Filters */}
           <div className="mt-6 flex flex-wrap gap-4">
-            <div className="relative flex-1 max-w-md">
-              <svg
-                className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <input
-                type="text"
-                placeholder="Search papers, authors, topics..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-lg border border-border bg-background py-2.5 pl-10 pr-4 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-              />
-            </div>
+            <input
+              type="text"
+              placeholder="Search papers..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="flex-1 max-w-md rounded-lg border border-border bg-background py-2.5 px-4 text-sm focus:border-primary focus:outline-none"
+            />
 
             <select
               value={selectedSpecialty}
               onChange={(e) => setSelectedSpecialty(e.target.value)}
-              className="rounded-lg border border-border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none"
+              className="rounded-lg border border-border bg-background px-4 py-2.5 text-sm"
             >
               <option value="">All Specialties</option>
-              {paperSpecialties.map((s) => (
+              {SPECIALTIES.map((s) => (
                 <option key={s} value={s}>{s}</option>
               ))}
             </select>
 
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as "citations" | "year")}
-              className="rounded-lg border border-border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none"
-            >
-              <option value="citations">Most Cited</option>
-              <option value="year">Most Recent</option>
-            </select>
+            <label className="flex items-center gap-2 rounded-lg border border-border bg-background px-4 py-2.5 text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                checked={hasCodeOnly}
+                onChange={(e) => setHasCodeOnly(e.target.checked)}
+              />
+              Has Code
+            </label>
           </div>
         </div>
       </div>
 
-      {/* Content */}
       <div className="mx-auto max-w-7xl px-4 py-8">
-        <p className="mb-6 text-sm text-muted-foreground">
-          <span className="font-semibold text-foreground">{filteredPapers.length}</span> papers found
-        </p>
+        {loading ? (
+          <div className="py-12 text-center text-muted-foreground">Loading...</div>
+        ) : (
+          <>
+            <p className="mb-6 text-sm text-muted-foreground">
+              {filteredPapers.length} papers
+            </p>
 
-        <div className="space-y-4">
-          {filteredPapers.map((paper) => (
-            <PaperCard key={paper.id} paper={paper} />
-          ))}
-        </div>
+            <div className="space-y-4">
+              {filteredPapers.map((paper) => (
+                <PaperCard key={paper.id} paper={paper} />
+              ))}
+            </div>
 
-        {filteredPapers.length === 0 && (
-          <div className="py-12 text-center">
-            <p className="text-muted-foreground">No papers match your search criteria.</p>
-          </div>
+            {filteredPapers.length === 0 && (
+              <div className="py-12 text-center text-muted-foreground">No papers found.</div>
+            )}
+          </>
         )}
       </div>
     </div>
   );
 }
 
-function PaperCard({ paper }: { paper: Paper }) {
+function PaperCard({ paper }: { paper: ScrapedPaper }) {
+  let authors: string[] = [];
+  try {
+    authors = JSON.parse(paper.authors);
+  } catch {
+    authors = [];
+  }
+
+  const authorDisplay = authors.length > 3
+    ? authors.slice(0, 3).join(", ") + " et al."
+    : authors.join(", ");
+
+  const year = paper.pubDate ? paper.pubDate.split("-")[0] : null;
+
   return (
-    <div className="rounded-xl border border-border bg-card p-6 transition-all hover:border-primary/30 hover:shadow-md">
+    <div className="rounded-xl border border-border bg-card p-6 hover:border-primary/30">
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1">
-          <h3 className="font-semibold text-foreground leading-snug">{paper.title}</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {paper.authors.slice(0, 3).join(", ")}
-            {paper.authors.length > 3 && " et al."}
-          </p>
+          <h3 className="font-semibold text-foreground">{paper.title}</h3>
+          <p className="mt-1 text-sm text-muted-foreground">{authorDisplay}</p>
         </div>
-        <div className="shrink-0 text-right">
-          <div className="text-lg font-bold text-primary">{formatNumber(paper.citations)}</div>
-          <div className="text-xs text-muted-foreground">citations</div>
-        </div>
+        {paper.hasModel && (
+          <span className="shrink-0 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+            Has Code
+          </span>
+        )}
       </div>
 
       <p className="mt-3 text-sm text-muted-foreground line-clamp-2">{paper.abstract}</p>
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+        <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium capitalize">
           {paper.specialty}
         </span>
-        <span className="text-sm text-muted-foreground">
-          {paper.journal} ({paper.year})
-        </span>
+        {paper.journal && (
+          <span className="text-sm text-muted-foreground">
+            {paper.journal} {year && "(" + year + ")"}
+          </span>
+        )}
+      </div>
+
+      <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-border pt-4">
+        {paper.pubmedUrl && (
+          <a
+            href={paper.pubmedUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium hover:border-primary/50"
+          >
+            PubMed
+          </a>
+        )}
         {paper.doi && (
-          <span className="text-xs text-muted-foreground">
-            DOI: {paper.doi}
-          </span>
+          <a
+            href={"https://doi.org/" + paper.doi}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium hover:border-primary/50"
+          >
+            DOI
+          </a>
         )}
-        {paper.arxivId && (
-          <span className="text-xs text-muted-foreground">
-            arXiv: {paper.arxivId}
-          </span>
+        {paper.githubUrl && (
+          <a
+            href={paper.githubUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-lg border border-primary bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary"
+          >
+            GitHub
+          </a>
         )}
       </div>
-
-      <div className="mt-3 flex flex-wrap gap-1">
-        {paper.tags.map((tag) => (
-          <span key={tag} className="rounded border border-border px-1.5 py-0.5 text-xs text-muted-foreground">
-            {tag}
-          </span>
-        ))}
-      </div>
-
-      {(paper.modelNames || paper.datasetNames) && (
-        <div className="mt-3 flex flex-wrap gap-2 border-t border-border pt-3">
-          {paper.modelNames?.map((name) => (
-            <span key={name} className="rounded-md bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700">
-              Model: {name}
-            </span>
-          ))}
-          {paper.datasetNames?.map((name) => (
-            <span key={name} className="rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
-              Dataset: {name}
-            </span>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

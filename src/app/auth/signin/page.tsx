@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { signIn, getProviders } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -10,7 +11,7 @@ type Provider = {
   name: string;
 };
 
-export default function SignInPage() {
+function SignInContent() {
   const [providers, setProviders] = useState<Record<string, Provider> | null>(null);
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
@@ -55,52 +56,60 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        {/* Logo */}
-        <Link href="/" className="flex items-center justify-center gap-2 mb-8">
-          <svg className="h-8 w-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-          </svg>
-          <span className="text-xl font-semibold text-foreground">MedicalModels</span>
-        </Link>
+    <div className="w-full max-w-sm">
+      {/* Logo */}
+      <Link href="/" className="flex items-center justify-center gap-2 mb-8">
+        <svg className="h-8 w-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+        </svg>
+        <span className="text-xl font-semibold text-foreground">MedicalModels</span>
+      </Link>
 
-        {/* Error Message */}
-        {error && (
-          <div className="mb-6 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm text-center">
-            {error === "OAuthAccountNotLinked"
-              ? "This email is already associated with another account."
-              : "An error occurred during sign in."}
-          </div>
-        )}
+      {/* Error Message */}
+      {error && (
+        <div className="mb-6 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm text-center">
+          {error === "OAuthAccountNotLinked"
+            ? "This email is already associated with another account."
+            : "An error occurred during sign in."}
+        </div>
+      )}
 
-        {/* Sign In Card */}
-        <div className="rounded-lg border border-border bg-card p-6">
-          <h1 className="text-lg font-semibold text-foreground text-center mb-6">Sign in</h1>
+      {/* Sign In Card */}
+      <div className="rounded-lg border border-border bg-card p-6">
+        <h1 className="text-lg font-semibold text-foreground text-center mb-6">Sign in</h1>
 
-          <div className="space-y-3">
-            {providers &&
-              Object.values(providers).map((provider) => (
-                <button
-                  key={provider.id}
-                  onClick={() => signIn(provider.id, { callbackUrl })}
-                  className="w-full flex items-center justify-center gap-3 rounded-lg border border-border bg-background px-4 py-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary/50"
-                >
-                  {getProviderIcon(provider.id)}
-                  Continue with {provider.name}
-                </button>
-              ))}
-          </div>
-
-          {!providers && (
-            <div className="text-center text-muted-foreground text-sm">Loading...</div>
-          )}
+        <div className="space-y-3">
+          {providers &&
+            Object.values(providers).map((provider) => (
+              <button
+                key={provider.id}
+                onClick={() => signIn(provider.id, { callbackUrl })}
+                className="w-full flex items-center justify-center gap-3 rounded-lg border border-border bg-background px-4 py-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary/50"
+              >
+                {getProviderIcon(provider.id)}
+                Continue with {provider.name}
+              </button>
+            ))}
         </div>
 
-        <p className="mt-6 text-center text-xs text-muted-foreground">
-          By signing in, you agree to our Terms of Service.
-        </p>
+        {!providers && (
+          <div className="text-center text-muted-foreground text-sm">Loading...</div>
+        )}
       </div>
+
+      <p className="mt-6 text-center text-xs text-muted-foreground">
+        By signing in, you agree to our Terms of Service.
+      </p>
+    </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+      <Suspense fallback={<div>Loading...</div>}>
+        <SignInContent />
+      </Suspense>
     </div>
   );
 }

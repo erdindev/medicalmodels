@@ -1,143 +1,75 @@
-"use client";
+import { demoModels } from "@/lib/data";
+import { HeroSearch } from "@/components/home/hero-search";
+import { ModelsGrid } from "@/components/home/models-grid";
 
-import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import { demoModels, specialties } from "@/lib/data";
-import Link from "next/link";
+interface PageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
 
-export default function Home() {
-  const router = useRouter();
-  const [query, setQuery] = useState("");
-  const [showResults, setShowResults] = useState(false);
+export default async function Home({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const query = typeof params.q === "string" ? params.q.toLowerCase() : "";
+  const specialty = typeof params.specialty === "string" ? params.specialty : "";
 
-  const results = useMemo(() => {
-    if (!query.trim()) return [];
-    const q = query.toLowerCase();
-    return demoModels.filter(
-      (m) =>
-        m.name.toLowerCase().includes(q) ||
-        m.specialty.toLowerCase().includes(q) ||
-        m.tags.some((t) => t.includes(q))
-    ).slice(0, 6);
-  }, [query]);
+  // Filter models based on search params
+  const filteredModels = demoModels.filter((model) => {
+    const matchesQuery =
+      !query ||
+      model.name.toLowerCase().includes(query) ||
+      model.specialty.toLowerCase().includes(query) ||
+      model.tags.some((t) => t.includes(query));
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (query.trim()) {
-      router.push(`/models?q=${encodeURIComponent(query)}`);
-    }
-  };
+    const matchesSpecialty = !specialty || model.specialty === specialty;
+
+    return matchesQuery && matchesSpecialty;
+  });
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Search */}
-      <section className="mx-auto max-w-4xl px-4 pt-24 pb-12">
-        <h1 className="text-center text-3xl font-semibold text-foreground">
-          Find Medical AI Models
-        </h1>
+      <HeroSearch />
 
-        {/* Search Input - Border Bottom Only */}
-        <form onSubmit={handleSearch} className="relative mt-10">
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setShowResults(true);
-            }}
-            onFocus={() => setShowResults(true)}
-            placeholder="Search by model name, specialty, or condition..."
-            className="w-full border-0 border-b-2 border-border bg-transparent pb-3 text-xl text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:outline-none"
-            autoFocus
-          />
-
-          {/* Search Results Dropdown */}
-          {showResults && results.length > 0 && (
-            <div className="absolute left-0 right-0 top-full z-50 mt-2 rounded-lg border border-border bg-card shadow-lg">
-              {results.map((model) => (
-                <Link
-                  key={model.id}
-                  href={`/models/${model.slug}`}
-                  onClick={() => setShowResults(false)}
-                  className="flex items-center justify-between px-4 py-3 hover:bg-secondary/50"
-                >
-                  <div>
-                    <p className="font-medium text-foreground">{model.name}</p>
-                    <p className="text-sm text-muted-foreground">{model.specialty}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-semibold text-primary">{(model.metrics.auc * 100).toFixed(0)}%</p>
-                    <p className="text-xs text-muted-foreground">AUC</p>
-                  </div>
-                </Link>
-              ))}
-              <Link
-                href={`/models?q=${encodeURIComponent(query)}`}
-                className="block border-t border-border px-4 py-2 text-center text-sm text-primary hover:bg-secondary/50"
-              >
-                View all results
-              </Link>
+      {/* Features / Emphasis Section */}
+      <section className="bg-secondary/30 py-12 border-y border-border">
+        <div className="mx-auto max-w-7xl px-4">
+          <div className="grid gap-8 md:grid-cols-3">
+            <div className="flex flex-col items-center text-center p-4">
+              <div className="mb-4 rounded-full bg-primary/10 p-3 text-primary">
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-bold text-foreground">Specialty-First Search</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Find the right model for your clinical department. Filter by Radiology, Dermatology, Pathology, and more.
+              </p>
             </div>
-          )}
-        </form>
-
-        {/* Quick Filters */}
-        <div className="mt-8 flex flex-wrap justify-center gap-2">
-          {specialties.slice(0, 6).map((s) => (
-            <Link
-              key={s}
-              href={`/models?specialty=${s}`}
-              className="rounded-full border border-border px-4 py-1.5 text-sm text-muted-foreground transition-colors hover:border-primary hover:text-primary"
-            >
-              {s}
-            </Link>
-          ))}
+            <div className="flex flex-col items-center text-center p-4">
+              <div className="mb-4 rounded-full bg-primary/10 p-3 text-primary">
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-bold text-foreground">Medically Validated</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Prioritize safety. Filter models by FDA approval, CE marking, and prospective clinical trial validation.
+              </p>
+            </div>
+            <div className="flex flex-col items-center text-center p-4">
+              <div className="mb-4 rounded-full bg-primary/10 p-3 text-primary">
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-bold text-foreground">Evidence Based</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Direct access to peer-reviewed publications, performance metrics, and training data sources.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Models Grid */}
-      <section className="mx-auto max-w-6xl px-4 py-8">
-        <div className="mb-6 flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">{demoModels.length} models</p>
-          <Link href="/compare" className="text-sm text-primary hover:underline">
-            Compare models
-          </Link>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {demoModels.map((model) => (
-            <Link
-              key={model.id}
-              href={`/models/${model.slug}`}
-              className="group rounded-lg border border-border bg-card p-4 transition-all hover:border-primary/40"
-            >
-              <div className="flex items-start justify-between">
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium text-foreground group-hover:text-primary">
-                    {model.name}
-                  </p>
-                  <p className="text-sm text-muted-foreground">{model.specialty}</p>
-                </div>
-                <div className="ml-3 text-right">
-                  <p className="text-lg font-semibold text-primary">{(model.metrics.auc * 100).toFixed(0)}%</p>
-                  <p className="text-xs text-muted-foreground">AUC</p>
-                </div>
-              </div>
-
-              <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground">
-                <span>{(model.metrics.sensitivity * 100).toFixed(0)}% sens</span>
-                <span>{(model.metrics.specificity * 100).toFixed(0)}% spec</span>
-                {model.regulatory.fdaApproved && (
-                  <span className="rounded bg-green-100 px-1.5 py-0.5 text-green-700">FDA</span>
-                )}
-                {model.validation.externalValidation && (
-                  <span className="rounded bg-primary/10 px-1.5 py-0.5 text-primary">validated</span>
-                )}
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
+      <ModelsGrid models={filteredModels} />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { demoModels, specialties, MedicalModel } from "@/lib/data";
 import Link from "next/link";
 import { formatNumber } from "@/lib/utils";
@@ -9,6 +9,42 @@ type ValidationFilter = "" | "retrospective" | "prospective" | "external";
 type AccessFilter = "" | "open-source" | "api" | "commercial" | "research-only";
 
 export default function ModelsPage() {
+  const [models, setModels] = useState<MedicalModel[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchModels() {
+      try {
+        const res = await fetch('/api/models');
+        const data = await res.json();
+        const mapped = data.map((m: any) => ({
+          ...m,
+          specialty: m.specialty?.name || 'General',
+          useCase: m.useCase?.name || 'General',
+          tags: m.tags?.map((t: any) => t.tag.name) || [],
+          metrics: {
+            sensitivity: m.metrics?.sensitivity ?? 0,
+            specificity: m.metrics?.specificity ?? 0,
+            auc: m.metrics?.auc ?? 0,
+            accuracy: m.metrics?.accuracy ?? 0
+          },
+          validation: m.validation || { validationType: 'retrospective', externalValidation: false },
+          regulatory: m.regulatory || { fdaApproved: false, ceMark: false, gdprCompliant: false },
+          practical: m.practical || { accessType: 'research-only' },
+          training: {
+            ...m.training,
+            datasetSize: m.training?.datasetSize ?? 0
+          }
+        }));
+        setModels(mapped);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchModels();
+  }, []);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSpecialty, setSelectedSpecialty] = useState("");
   const [selectedValidation, setSelectedValidation] = useState<ValidationFilter>("");
@@ -16,11 +52,14 @@ export default function ModelsPage() {
   const [fdaOnly, setFdaOnly] = useState(false);
   const [ceOnly, setCeOnly] = useState(false);
   const [gdprOnly, setGdprOnly] = useState(false);
-  const [minAuc, setMinAuc] = useState(0.5);
+  const [minAuc, setMinAuc] = useState(0);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
+  const [selectedArchitecture, setSelectedArchitecture] = useState("");
+  const [selectedSize, setSelectedSize] = useState("");
+
   const filteredModels = useMemo(() => {
-    return demoModels.filter((model) => {
+    return models.filter((model) => {
       // Search filter
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
@@ -34,6 +73,24 @@ export default function ModelsPage() {
 
       // Specialty filter
       if (selectedSpecialty && model.specialty !== selectedSpecialty) return false;
+
+      // Architecture filter
+      if (selectedArchitecture) {
+        const q = selectedArchitecture.toLowerCase();
+        const matchesArch =
+          model.name.toLowerCase().includes(q) ||
+          model.description.toLowerCase().includes(q) ||
+          model.tags.some(t => t.toLowerCase().includes(q));
+        if (!matchesArch) return false;
+      }
+
+      // Parameter Size filter (Text based approximation for now)
+      if (selectedSize) {
+        // This is a placeholder logic as we don't have structured parameter data yet
+        // We'll just check if the description mentions the size category keywords
+        // In a real app, this would use a structured field
+        return true;
+      }
 
       // Validation filter
       if (selectedValidation === "retrospective" && model.validation.validationType !== "retrospective" && model.validation.validationType !== "both") return false;
@@ -56,44 +113,26 @@ export default function ModelsPage() {
   }, [searchQuery, selectedSpecialty, selectedValidation, selectedAccess, fdaOnly, ceOnly, gdprOnly, minAuc]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" suppressHydrationWarning>
       {/* Header */}
       <div className="border-b border-border bg-card">
-        <div className="mx-auto max-w-7xl px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">MedAIHub</h1>
-              <p className="text-sm text-muted-foreground">Comprehensive Medical AI Model Database</p>
-            </div>
-            <div className="flex gap-2">
-              <span className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-                ✓ VALIDATED
-              </span>
-              <span className="rounded-full border border-orange-300 bg-orange-50 px-3 py-1 text-xs font-medium text-orange-600">
-                ⚡ RESEARCH
-              </span>
-            </div>
-          </div>
-
-          {/* Search Bar */}
-          <div className="mt-4">
-            <div className="relative">
-              <svg
-                className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <input
-                type="text"
-                placeholder="Search models, specialties, use cases..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-xl border border-border bg-background py-3 pl-12 pr-4 text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
-            </div>
+        <div className="mx-auto max-w-7xl px-4 py-4">
+          <div className="relative">
+            <svg
+              className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search models..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full rounded-xl border border-border bg-background py-3 pl-12 pr-4 text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
           </div>
         </div>
       </div>
@@ -119,6 +158,44 @@ export default function ModelsPage() {
                         className="h-4 w-4 border-border text-primary focus:ring-primary"
                       />
                       <span className="text-muted-foreground hover:text-foreground">{s}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Architecture */}
+              <div>
+                <h3 className="mb-3 text-sm font-semibold text-foreground">ARCHITECTURE</h3>
+                <div className="space-y-2">
+                  {["CNN", "Transformer", "ResNet", "U-Net", "VGG", "Inception", "Ensemble"].map((arch) => (
+                    <label key={arch} className="flex cursor-pointer items-center gap-2 text-sm">
+                      <input
+                        type="radio"
+                        name="architecture"
+                        checked={selectedArchitecture === arch}
+                        onChange={() => setSelectedArchitecture(selectedArchitecture === arch ? "" : arch)}
+                        className="h-4 w-4 border-border text-primary focus:ring-primary"
+                      />
+                      <span className="text-muted-foreground hover:text-foreground">{arch}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Parameter Size */}
+              <div>
+                <h3 className="mb-3 text-sm font-semibold text-foreground">PARAMETER SIZE</h3>
+                <div className="space-y-2">
+                  {["< 10M", "10M - 100M", "> 100M"].map((size) => (
+                    <label key={size} className="flex cursor-pointer items-center gap-2 text-sm">
+                      <input
+                        type="radio"
+                        name="size"
+                        checked={selectedSize === size}
+                        onChange={() => setSelectedSize(selectedSize === size ? "" : size)}
+                        className="h-4 w-4 border-border text-primary focus:ring-primary"
+                      />
+                      <span className="text-muted-foreground hover:text-foreground">{size}</span>
                     </label>
                   ))}
                 </div>
@@ -210,7 +287,7 @@ export default function ModelsPage() {
                 <div className="text-2xl font-semibold text-primary">{minAuc.toFixed(2)}</div>
                 <input
                   type="range"
-                  min="0.5"
+                  min="0"
                   max="1"
                   step="0.01"
                   value={minAuc}
@@ -262,12 +339,14 @@ export default function ModelsPage() {
                   onClick={() => {
                     setSearchQuery("");
                     setSelectedSpecialty("");
+                    setSelectedArchitecture("");
+                    setSelectedSize("");
                     setSelectedValidation("");
                     setSelectedAccess("");
                     setFdaOnly(false);
                     setCeOnly(false);
                     setGdprOnly(false);
-                    setMinAuc(0.5);
+                    setMinAuc(0);
                   }}
                   className="mt-4 text-primary hover:underline"
                 >

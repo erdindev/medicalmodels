@@ -22,6 +22,7 @@ export interface MedicalModel {
   };
   validation: {
     publications: number;
+    publicationLinks?: { title: string; url: string; source: string }[];
     clinicalTrials: number;
     externalValidation: boolean;
     validationType: "retrospective" | "prospective" | "both";
@@ -42,6 +43,8 @@ export interface MedicalModel {
   updatedAt: string;
   tags: string[];
 }
+
+export type Model = MedicalModel;
 
 export const specialties = [
   "Radiology", "Pathology", "Cardiology", "Dermatology",
@@ -65,7 +68,16 @@ export const demoModels: MedicalModel[] = [
     version: "2.1.0",
     metrics: { sensitivity: 0.94, specificity: 0.91, auc: 0.96, accuracy: 0.92 },
     training: { datasetSize: 224316, datasetSource: "CheXpert", diversity: "Multi-center, US population" },
-    validation: { publications: 12, clinicalTrials: 2, externalValidation: true, validationType: "both" },
+    validation: {
+      publications: 12,
+      publicationLinks: [
+        { title: "CheXpert: A Large Chest Radiograph Dataset with Uncertainty Labels and Expert Comparison", url: "https://arxiv.org/abs/1901.07031", source: "AAAI" },
+        { title: "Deep learning for chest radiograph diagnosis: A retrospective comparison of the CheXNeXt algorithm to practicing radiologists", url: "https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.1002686", source: "PLOS Medicine" }
+      ],
+      clinicalTrials: 2,
+      externalValidation: true,
+      validationType: "both"
+    },
     regulatory: { fdaApproved: true, ceMark: true, gdprCompliant: true },
     practical: { accessType: "open-source", cost: "Free", hardwareRequirements: "GPU recommended (4GB+ VRAM)", hasSupport: true },
     downloads: 45230, likes: 892, updatedAt: "2024-11-15",
@@ -82,7 +94,15 @@ export const demoModels: MedicalModel[] = [
     version: "3.0.2",
     metrics: { sensitivity: 0.96, specificity: 0.89, auc: 0.94, accuracy: 0.91 },
     training: { datasetSize: 129450, datasetSource: "ISIC Archive + Clinical", diversity: "Global, Fitzpatrick I-VI" },
-    validation: { publications: 8, clinicalTrials: 3, externalValidation: true, validationType: "prospective" },
+    validation: {
+      publications: 8,
+      publicationLinks: [
+        { title: "Dermatologist-level classification of skin cancer with deep neural networks", url: "https://www.nature.com/articles/nature21056", source: "Nature" }
+      ],
+      clinicalTrials: 3,
+      externalValidation: true,
+      validationType: "prospective"
+    },
     regulatory: { fdaApproved: true, ceMark: true, gdprCompliant: true },
     practical: { accessType: "api", cost: "$0.05/prediction", hardwareRequirements: "Cloud-based", hasSupport: true },
     downloads: 28450, likes: 654, updatedAt: "2024-10-28",
@@ -99,7 +119,15 @@ export const demoModels: MedicalModel[] = [
     version: "1.5.0",
     metrics: { sensitivity: 0.88, specificity: 0.92, auc: 0.91, accuracy: 0.90 },
     training: { datasetSize: 1200000, datasetSource: "UK Biobank + Partners", diversity: "European population bias" },
-    validation: { publications: 5, clinicalTrials: 1, externalValidation: true, validationType: "retrospective" },
+    validation: {
+      publications: 5,
+      publicationLinks: [
+        { title: "Prediction of cardiovascular risk from electrocardiograms", url: "#", source: "New England Journal of Medicine" }
+      ],
+      clinicalTrials: 1,
+      externalValidation: true,
+      validationType: "retrospective"
+    },
     regulatory: { fdaApproved: false, ceMark: true, gdprCompliant: true },
     practical: { accessType: "commercial", cost: "Enterprise pricing", hardwareRequirements: "Standard CPU", hasSupport: true },
     downloads: 12340, likes: 423, updatedAt: "2024-11-01",
@@ -116,7 +144,15 @@ export const demoModels: MedicalModel[] = [
     version: "4.2.1",
     metrics: { sensitivity: 0.95, specificity: 0.93, auc: 0.97, accuracy: 0.94 },
     training: { datasetSize: 88000, datasetSource: "EyePACS + Indian clinics", diversity: "Multi-ethnic, global" },
-    validation: { publications: 15, clinicalTrials: 4, externalValidation: true, validationType: "both" },
+    validation: {
+      publications: 15,
+      publicationLinks: [
+        { title: "A deep learning algorithm for detection of diabetic retinopathy in retinal fundus photographs", url: "https://jamanetwork.com/journals/jama/fullarticle/2588763", source: "JAMA" }
+      ],
+      clinicalTrials: 4,
+      externalValidation: true,
+      validationType: "both"
+    },
     regulatory: { fdaApproved: true, ceMark: true, gdprCompliant: true },
     practical: { accessType: "api", cost: "$0.10/image", hardwareRequirements: "Cloud-based", hasSupport: true },
     downloads: 67800, likes: 1203, updatedAt: "2024-11-10",
@@ -133,7 +169,13 @@ export const demoModels: MedicalModel[] = [
     version: "1.0.0",
     metrics: { sensitivity: 0.92, specificity: 0.94, auc: 0.95, accuracy: 0.93 },
     training: { datasetSize: 500000, datasetSource: "TCGA + Clinical partners", diversity: "Pan-cancer, multi-center" },
-    validation: { publications: 3, clinicalTrials: 0, externalValidation: false, validationType: "retrospective" },
+    validation: {
+      publications: 3,
+      publicationLinks: [],
+      clinicalTrials: 0,
+      externalValidation: false,
+      validationType: "retrospective"
+    },
     regulatory: { fdaApproved: false, ceMark: false, gdprCompliant: true },
     practical: { accessType: "research-only", cost: "Free for research", hardwareRequirements: "High-end GPU (24GB+ VRAM)", hasSupport: false },
     downloads: 8920, likes: 567, updatedAt: "2024-11-18",
@@ -150,7 +192,15 @@ export const demoModels: MedicalModel[] = [
     version: "2.3.0",
     metrics: { sensitivity: 0.91, specificity: 0.96, auc: 0.94, accuracy: 0.93 },
     training: { datasetSize: 2000, datasetSource: "BraTS Challenge", diversity: "Multi-institutional" },
-    validation: { publications: 20, clinicalTrials: 1, externalValidation: true, validationType: "retrospective" },
+    validation: {
+      publications: 20,
+      publicationLinks: [
+        { title: "The Multimodal Brain Tumor Image Segmentation Benchmark (BRATS)", url: "https://ieeexplore.ieee.org/document/6975210", source: "IEEE TMI" }
+      ],
+      clinicalTrials: 1,
+      externalValidation: true,
+      validationType: "retrospective"
+    },
     regulatory: { fdaApproved: false, ceMark: true, gdprCompliant: true },
     practical: { accessType: "open-source", cost: "Free", hardwareRequirements: "GPU required (8GB+ VRAM)", hasSupport: true },
     downloads: 34560, likes: 789, updatedAt: "2024-09-20",

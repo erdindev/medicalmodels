@@ -37,7 +37,7 @@ function generateROCData(auc: number, modelName: string) {
 function mergeROCData(models: MedicalModel[]) {
   if (models.length === 0) return [];
 
-  const allData: Record<string, Record<string, number>>[] = [];
+  const allData: Record<string, number>[] = [];
 
   for (let i = 0; i <= 50; i++) {
     const fpr = i / 50;
@@ -49,7 +49,7 @@ function mergeROCData(models: MedicalModel[]) {
       point[model.name] = parseFloat((tpr * 100).toFixed(1));
     });
 
-    allData.push(point as Record<string, Record<string, number>>);
+    allData.push(point);
   }
 
   return allData;
@@ -260,9 +260,8 @@ export default function ComparePage() {
                             return (
                               <td key={model.id} className="py-4 text-center">
                                 <span
-                                  className={`text-lg font-semibold ${
-                                    isBest ? "text-green-600" : isWorst ? "text-red-500" : "text-foreground"
-                                  }`}
+                                  className={`text-lg font-semibold ${isBest ? "text-green-600" : isWorst ? "text-red-500" : "text-foreground"
+                                    }`}
                                 >
                                   {metric === "auc" ? value.toFixed(3) : `${(value * 100).toFixed(1)}%`}
                                 </span>
@@ -374,13 +373,12 @@ export default function ComparePage() {
                         <td className="py-3 text-sm text-foreground">Access Type</td>
                         {selectedModels.map((model) => (
                           <td key={model.id} className="py-3 text-center">
-                            <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                              model.practical.accessType === "open-source"
+                            <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${model.practical.accessType === "open-source"
                                 ? "bg-green-100 text-green-700"
                                 : model.practical.accessType === "api"
-                                ? "bg-blue-100 text-blue-700"
-                                : "bg-purple-100 text-purple-700"
-                            }`}>
+                                  ? "bg-blue-100 text-blue-700"
+                                  : "bg-purple-100 text-purple-700"
+                              }`}>
                               {model.practical.accessType}
                             </span>
                           </td>

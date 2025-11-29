@@ -70,6 +70,14 @@ export function UserMenu() {
           </div>
 
           <Link
+            href="/dashboard"
+            onClick={() => setOpen(false)}
+            className="block px-3 py-2 text-sm text-foreground hover:bg-secondary/50 font-medium"
+          >
+            Dashboard
+          </Link>
+
+          <Link
             href="/saved"
             onClick={() => setOpen(false)}
             className="block px-3 py-2 text-sm text-foreground hover:bg-secondary/50"

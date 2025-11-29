@@ -66,6 +66,7 @@ model User {
   sessions      Session[]
   savedModels   SavedModel[]
   comparisons   Comparison[]
+  uploadedModels MedicalModel[]
 
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -113,8 +114,11 @@ model MedicalModel {
   version     String
   description String
 
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
 
   specialtyId String
   specialty   Specialty @relation(fields: [specialtyId], references: [id])
@@ -146,6 +150,7 @@ model MedicalModel {
   @@index([specialtyId])
   @@index([useCaseId])
   @@index([organizationId])
+  @@index([userId])
 }
 
 model ModelMetrics {
@@ -350,4 +355,67 @@ model Benchmark {
   createdAt   DateTime @default(now())
 
   @@index([modelId])
+}
+
+// ============================================================================
+// SCRAPED PAPERS (from PubMed, arXiv, etc.)
+// ============================================================================
+
+model ScrapedPaper {
+  id          String   @id @default(cuid())
+
+  // Identifiers
+  pmid        String?  @unique  // PubMed ID
+  pmcId       String?           // PubMed Central ID
+  doi         String?           // Digital Object Identifier
+  arxivId     String?  @unique  // arXiv ID
+
+  // Basic Info
+  title       String
+  abstract    String
+  authors     String            // JSON array
+  journal     String?
+  pubDate     String?
+
+  // Classification
+  specialty   String            // radiology, pathology, dermatology, etc.
+  keywords    String?           // JSON array
+  meshTerms   String?           // JSON array (PubMed MeSH terms)
+
+  // Links
+  pubmedUrl   String?
+  arxivUrl    String?
+  pdfUrl      String?
+  githubUrl   String?
+  codeLinks   String?           // JSON array of all code repository links
+  datasetUrl  String?
+  demoUrl     String?
+
+  // Model Info (extracted or linked)
+  hasModel    Boolean  @default(false)
+  modelName   String?
+  modelId     String?           // Link to MedicalModel if we create one
+
+  // Processing Status
+  isProcessed Boolean  @default(false)
+  isReviewed  Boolean  @default(false)
+  notes       String?
+
+  // Metrics (if extractable from paper)
+  reportedAuc       Float?
+  reportedAccuracy  Float?
+  reportedSensitivity Float?
+  reportedSpecificity Float?
+  datasetSize       Int?
+  datasetName       String?
+
+  // Stats
+  citationCount Int?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([specialty])
+  @@index([hasModel])
+  @@index([isProcessed])
 }
