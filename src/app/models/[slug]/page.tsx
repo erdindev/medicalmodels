@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { PrismaClient } from "@prisma/client";
+import { Info } from "lucide-react";
 
 const prisma = new PrismaClient();
 
@@ -96,8 +97,32 @@ export default async function ModelDetailPage({ params }: { params: Promise<{ sl
             </p>
           </div>
 
+          {/* Source & Copyright Notice */}
+          <div className="mt-8 rounded-lg border border-blue-200 bg-blue-50/50 p-4">
+            <div className="flex items-start gap-3">
+              <Info className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
+              <div className="text-sm text-blue-900">
+                <p className="font-medium mb-1">Source & Copyright</p>
+                <p className="text-blue-800">
+                  {model.journal ? (
+                    <>
+                      Data sourced from <span className="font-medium">{model.journal}</span>.{" "}
+                    </>
+                  ) : (
+                    <>Data sourced from peer-reviewed publication. </>
+                  )}
+                  All research data, metrics, and methodologies remain the intellectual property
+                  of the original authors and publishing journal.
+                  <Link href="/disclaimer" className="ml-1 underline hover:text-blue-900">
+                    View disclaimer
+                  </Link>
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Original Article Link */}
-          <div className="border-t border-border pt-6 flex justify-end">
+          <div className="border-t border-border pt-6 mt-6 flex justify-end">
             <a
               href={publicationLink}
               target="_blank"
