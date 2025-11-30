@@ -84,7 +84,7 @@ function SignInContent() {
               <button
                 key={provider.id}
                 onClick={() => signIn(provider.id, { callbackUrl })}
-                className="w-full flex items-center justify-center gap-3 rounded-lg border border-border bg-background px-4 py-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary/50"
+                className="w-full flex items-center justify-center gap-3 rounded-lg border border-border px-4 py-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary/50"
               >
                 {getProviderIcon(provider.id)}
                 Continue with {provider.name}
@@ -106,7 +106,7 @@ function SignInContent() {
 
 export default function SignInPage() {
   return (
-    <div className="min-h-screen bg-background bg-dot-grid flex items-center justify-center px-4">
+    <div className="min-h-screen flex items-center justify-center px-4">
       <Suspense fallback={<div>Loading...</div>}>
         <SignInContent />
       </Suspense>

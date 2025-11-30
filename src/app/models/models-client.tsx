@@ -106,7 +106,7 @@ export function ModelsClient({ initialModels, specialties, journals }: ModelsCli
   };
 
   return (
-    <div className="min-h-screen bg-background bg-dot-grid overflow-x-hidden">
+    <div className="min-h-screen overflow-x-hidden">
       {/* Header */}
       <div className="border-b border-border bg-card shadow-sm">
         <div className="mx-auto max-w-7xl px-3 sm:px-4 py-3 sm:py-4">
@@ -124,7 +124,7 @@ export function ModelsClient({ initialModels, specialties, journals }: ModelsCli
               placeholder="Search models..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-xl border border-border bg-background py-2.5 sm:py-3 pl-10 sm:pl-12 pr-3 sm:pr-4 text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="w-full rounded-xl border border-border py-2.5 sm:py-3 pl-10 sm:pl-12 pr-3 sm:pr-4 text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
           </div>
         </div>
@@ -257,7 +257,7 @@ export function ModelsClient({ initialModels, specialties, journals }: ModelsCli
                     <select
                       value={selectedJournal}
                       onChange={(e) => setSelectedJournal(e.target.value)}
-                      className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                      className="w-full rounded-lg border border-border px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                     >
                       <option value="">All Journals</option>
                       {journals.map((j) => (
@@ -384,7 +384,7 @@ export function ModelsClient({ initialModels, specialties, journals }: ModelsCli
                 <select
                   value={selectedJournal}
                   onChange={(e) => setSelectedJournal(e.target.value)}
-                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="w-full rounded-lg border border-border px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 >
                   <option value="">All Journals</option>
                   {journals.map((j) => (

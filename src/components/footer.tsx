@@ -3,7 +3,7 @@ import { AlertTriangle } from "lucide-react";
 
 export function Footer() {
     return (
-        <footer className="border-t border-border bg-secondary/30">
+        <footer className="border-t border-border bg-secondary/30 relative z-50">
             {/* Disclaimer Banner */}
             <div className="border-b border-border bg-amber-50/50">
                 <div className="mx-auto max-w-7xl px-4 py-3">
@@ -41,7 +41,8 @@ export function Footer() {
                         <ul className="space-y-2 text-sm text-muted-foreground">
                             <li><Link href="/models" className="hover:text-primary">Browse Models</Link></li>
                             <li><Link href="/papers" className="hover:text-primary">Research Papers</Link></li>
-                            <li><Link href="/compare" className="hover:text-primary">Compare Models</Link></li>
+                            <li><Link href="/datasets" className="hover:text-primary">Datasets</Link></li>
+                            <li><Link href="/developer-teams" className="hover:text-primary">Developer Teams</Link></li>
                         </ul>
                     </div>
 

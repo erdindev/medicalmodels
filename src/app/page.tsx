@@ -36,7 +36,7 @@ export default async function Home() {
   ]);
 
   return (
-    <div className="min-h-screen bg-background bg-dot-grid">
+    <div className="min-h-screen bg-background">
       <HeroSearch modelCount={stats.modelCount} specialtyCount={stats.specialtyCount} />
       <SpecialtySection specialties={topSpecialties} />
       <FeaturesSection modelCount={stats.modelCount} />

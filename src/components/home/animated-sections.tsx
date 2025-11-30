@@ -44,7 +44,7 @@ interface SpecialtySectionProps {
 
 export function SpecialtySection({ specialties }: SpecialtySectionProps) {
   return (
-    <section className="pt-16 pb-8">
+    <section className="pt-16 pb-8 relative z-50">
       <div className="mx-auto max-w-4xl px-4">
         <motion.p
           initial={{ opacity: 0 }}

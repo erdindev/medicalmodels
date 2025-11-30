@@ -96,7 +96,7 @@ export default function ComparePage() {
   };
 
   return (
-    <div className="min-h-screen bg-background bg-dot-grid">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="border-b border-border bg-card">
         <div className="mx-auto max-w-7xl px-4 py-6">
@@ -119,7 +119,7 @@ export default function ComparePage() {
                 placeholder="Search models..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
 
               <div className="mt-4 max-h-96 space-y-2 overflow-y-auto">

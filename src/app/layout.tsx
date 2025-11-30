@@ -7,6 +7,9 @@ import { Providers } from "@/components/providers";
 import { Footer } from "@/components/footer";
 import { CookieConsent } from "@/components/cookie-consent";
 
+import { Analytics } from "@/components/analytics";
+
+
 const lato = Lato({
   subsets: ["latin"],
   weight: ["100", "300", "400", "700", "900"],
@@ -37,9 +40,11 @@ export default function RootLayout({
       </head>
       <body className={lato.className}>
         <Providers>
+
           <Navbar />
           <main className="min-h-screen">{children}</main>
           <CookieConsent />
+          <Analytics />
           <Footer />
         </Providers>
       </body>

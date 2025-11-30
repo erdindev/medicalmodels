@@ -50,7 +50,7 @@ export default async function ModelDetailPage({ params }: { params: Promise<{ sl
   }
 
   return (
-    <div className="min-h-screen bg-background bg-dot-grid">
+    <div className="min-h-screen bg-background">
       {/* Breadcrumb */}
       <div className="border-b border-border bg-card">
         <div className="mx-auto max-w-4xl px-4 py-4">

@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function DisclaimerPage() {
   return (
-    <div className="min-h-screen bg-background bg-dot-grid">
+    <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-3xl px-4 py-12">
         <h1 className="text-3xl font-bold text-foreground mb-8">Disclaimer</h1>
 

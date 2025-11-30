@@ -55,7 +55,7 @@ export default function PapersPage() {
   });
 
   return (
-    <div className="min-h-screen bg-background bg-dot-grid">
+    <div className="min-h-screen bg-background">
       <div className="border-b border-border bg-card">
         <div className="mx-auto max-w-7xl px-4 py-8">
           <h1 className="text-3xl font-bold text-foreground">Research Papers</h1>
@@ -69,13 +69,13 @@ export default function PapersPage() {
               placeholder="Search papers..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 max-w-md rounded-lg border border-border bg-background py-2.5 px-4 text-sm focus:border-primary focus:outline-none"
+              className="flex-1 max-w-md rounded-lg border border-border py-2.5 px-4 text-sm focus:border-primary focus:outline-none"
             />
 
             <select
               value={selectedSpecialty}
               onChange={(e) => setSelectedSpecialty(e.target.value)}
-              className="rounded-lg border border-border bg-background px-4 py-2.5 text-sm"
+              className="rounded-lg border border-border px-4 py-2.5 text-sm"
             >
               <option value="">All Specialties</option>
               {SPECIALTIES.map((s) => (
@@ -83,7 +83,7 @@ export default function PapersPage() {
               ))}
             </select>
 
-            <label className="flex items-center gap-2 rounded-lg border border-border bg-background px-4 py-2.5 text-sm cursor-pointer">
+            <label className="flex items-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm cursor-pointer">
               <input
                 type="checkbox"
                 checked={hasCodeOnly}

@@ -27,6 +27,18 @@ export function Navbar() {
             >
               Models
             </Link>
+            <Link
+              href="/developer-teams"
+              className={`font-bold ${pathname.startsWith("/developer-teams") ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              Developer Teams
+            </Link>
+            <Link
+              href="/datasets"
+              className={`font-bold ${pathname.startsWith("/datasets") ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              Datasets
+            </Link>
             <UserMenu />
           </div>
         </div>
