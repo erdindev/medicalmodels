@@ -50,18 +50,18 @@ interface ExtractedMetadata {
     comparisonWithExperts?: boolean | null;
   };
   results?: {
-    accuracy?: number;
-    sensitivity?: number;
-    specificity?: number;
-    auc?: number;
+    accuracy?: any;
+    sensitivity?: any;
+    specificity?: any;
+    auc?: any;
     aucCI?: string;
-    f1Score?: number;
-    precision?: number;
-    recall?: number;
-    npv?: number;
-    ppv?: number;
-    diceScore?: number;
-    iou?: number;
+    f1Score?: any;
+    precision?: any;
+    recall?: any;
+    npv?: any;
+    ppv?: any;
+    diceScore?: any;
+    iou?: any;
     summary?: string;
     // Legacy fields for backward compatibility
     bestAccuracy?: number;
@@ -132,6 +132,43 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       canonical: `/models/${slug}`,
     },
   };
+}
+
+const formatValue = (val: any): string => {
+  if (typeof val === 'number') {
+    return (val <= 1 && val > 0 ? val * 100 : val).toFixed(1) + '%';
+  }
+  if (typeof val === 'string' && !val.includes('%') && !isNaN(Number(val))) {
+    const num = Number(val);
+    return (num <= 1 && num > 0 ? num * 100 : num).toFixed(1) + '%';
+  }
+  return String(val);
+};
+
+function MetricValue({ value }: { value: any }) {
+  if (value === null || value === undefined) return null;
+
+  if (typeof value === 'object') {
+    return (
+      <div className="flex flex-col text-xs font-normal mt-1 space-y-1 w-full">
+        {Object.entries(value).map(([k, v]) => (
+          <div key={k} className="flex flex-col w-full">
+            <div className="flex justify-between gap-2 w-full items-baseline">
+              <span className="opacity-80 text-left truncate" title={k}>{k}:</span>
+              {typeof v !== 'object' && <span className="font-mono text-right shrink-0">{formatValue(v)}</span>}
+            </div>
+            {typeof v === 'object' && (
+              <div className="pl-2 border-l border-current/20 ml-1 mt-0.5">
+                <MetricValue value={v} />
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return <>{formatValue(value)}</>;
 }
 
 export default async function ModelDetailPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -516,78 +553,86 @@ export default async function ModelDetailPage({ params }: { params: Promise<{ sl
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
                   {/* AUC */}
                   {(extractedData.results.auc || extractedData.results.bestAuc) && (
-                    <div className="rounded-lg bg-gradient-to-br from-emerald-50 to-emerald-100 p-3 text-center">
-                      <div className="text-xs text-emerald-600 font-medium">AUC</div>
-                      <div className="text-lg font-bold text-emerald-700">
-                        {((extractedData.results.auc || extractedData.results.bestAuc || 0) * (extractedData.results.auc && extractedData.results.auc <= 1 ? 100 : 1)).toFixed(1)}%
+                    <div className="rounded-lg bg-gradient-to-br from-emerald-50 to-emerald-100 p-3 text-center flex flex-col items-center">
+                      <div className="text-xs text-emerald-600 font-medium uppercase mb-1">AUC</div>
+                      <div className="text-lg font-bold text-emerald-700 w-full flex justify-center">
+                        <MetricValue value={extractedData.results.auc || extractedData.results.bestAuc} />
                       </div>
                       {extractedData.results.aucCI && (
-                        <div className="text-xs text-emerald-500">CI: {extractedData.results.aucCI}</div>
+                        <div className="text-xs text-emerald-500 mt-1">CI: {extractedData.results.aucCI}</div>
                       )}
                     </div>
                   )}
                   {/* Accuracy */}
                   {(extractedData.results.accuracy || extractedData.results.bestAccuracy) && (
-                    <div className="rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 p-3 text-center">
-                      <div className="text-xs text-blue-600 font-medium">Accuracy</div>
-                      <div className="text-lg font-bold text-blue-700">
-                        {(extractedData.results.accuracy || extractedData.results.bestAccuracy)}%
+                    <div className="rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 p-3 text-center flex flex-col items-center">
+                      <div className="text-xs text-blue-600 font-medium uppercase mb-1">Accuracy</div>
+                      <div className="text-lg font-bold text-blue-700 w-full flex justify-center">
+                        <MetricValue value={extractedData.results.accuracy || extractedData.results.bestAccuracy} />
                       </div>
                     </div>
                   )}
                   {/* Sensitivity/Recall */}
                   {(extractedData.results.sensitivity || extractedData.results.bestSensitivity || extractedData.results.recall) && (
-                    <div className="rounded-lg bg-gradient-to-br from-purple-50 to-purple-100 p-3 text-center">
-                      <div className="text-xs text-purple-600 font-medium">Sensitivity</div>
-                      <div className="text-lg font-bold text-purple-700">
-                        {(extractedData.results.sensitivity || extractedData.results.bestSensitivity || extractedData.results.recall)}%
+                    <div className="rounded-lg bg-gradient-to-br from-purple-50 to-purple-100 p-3 text-center flex flex-col items-center">
+                      <div className="text-xs text-purple-600 font-medium uppercase mb-1">Sensitivity</div>
+                      <div className="text-lg font-bold text-purple-700 w-full flex justify-center">
+                        <MetricValue value={extractedData.results.sensitivity || extractedData.results.bestSensitivity || extractedData.results.recall} />
                       </div>
                     </div>
                   )}
                   {/* Specificity */}
                   {(extractedData.results.specificity || extractedData.results.bestSpecificity) && (
-                    <div className="rounded-lg bg-gradient-to-br from-orange-50 to-orange-100 p-3 text-center">
-                      <div className="text-xs text-orange-600 font-medium">Specificity</div>
-                      <div className="text-lg font-bold text-orange-700">
-                        {(extractedData.results.specificity || extractedData.results.bestSpecificity)}%
+                    <div className="rounded-lg bg-gradient-to-br from-orange-50 to-orange-100 p-3 text-center flex flex-col items-center">
+                      <div className="text-xs text-orange-600 font-medium uppercase mb-1">Specificity</div>
+                      <div className="text-lg font-bold text-orange-700 w-full flex justify-center">
+                        <MetricValue value={extractedData.results.specificity || extractedData.results.bestSpecificity} />
                       </div>
                     </div>
                   )}
                   {/* F1 Score */}
                   {extractedData.results.f1Score && (
-                    <div className="rounded-lg bg-gradient-to-br from-pink-50 to-pink-100 p-3 text-center">
-                      <div className="text-xs text-pink-600 font-medium">F1 Score</div>
-                      <div className="text-lg font-bold text-pink-700">{extractedData.results.f1Score}%</div>
+                    <div className="rounded-lg bg-gradient-to-br from-pink-50 to-pink-100 p-3 text-center flex flex-col items-center">
+                      <div className="text-xs text-pink-600 font-medium uppercase mb-1">F1 Score</div>
+                      <div className="text-lg font-bold text-pink-700 w-full flex justify-center">
+                        <MetricValue value={extractedData.results.f1Score} />
+                      </div>
                     </div>
                   )}
                   {/* Precision/PPV */}
                   {(extractedData.results.precision || extractedData.results.ppv) && (
-                    <div className="rounded-lg bg-gradient-to-br from-indigo-50 to-indigo-100 p-3 text-center">
-                      <div className="text-xs text-indigo-600 font-medium">PPV/Precision</div>
-                      <div className="text-lg font-bold text-indigo-700">
-                        {(extractedData.results.precision || extractedData.results.ppv)}%
+                    <div className="rounded-lg bg-gradient-to-br from-indigo-50 to-indigo-100 p-3 text-center flex flex-col items-center">
+                      <div className="text-xs text-indigo-600 font-medium uppercase mb-1">PPV/Precision</div>
+                      <div className="text-lg font-bold text-indigo-700 w-full flex justify-center">
+                        <MetricValue value={extractedData.results.precision || extractedData.results.ppv} />
                       </div>
                     </div>
                   )}
                   {/* NPV */}
                   {extractedData.results.npv && (
-                    <div className="rounded-lg bg-gradient-to-br from-teal-50 to-teal-100 p-3 text-center">
-                      <div className="text-xs text-teal-600 font-medium">NPV</div>
-                      <div className="text-lg font-bold text-teal-700">{extractedData.results.npv}%</div>
+                    <div className="rounded-lg bg-gradient-to-br from-teal-50 to-teal-100 p-3 text-center flex flex-col items-center">
+                      <div className="text-xs text-teal-600 font-medium uppercase mb-1">NPV</div>
+                      <div className="text-lg font-bold text-teal-700 w-full flex justify-center">
+                        <MetricValue value={extractedData.results.npv} />
+                      </div>
                     </div>
                   )}
                   {/* Dice Score (for segmentation) */}
                   {extractedData.results.diceScore && (
-                    <div className="rounded-lg bg-gradient-to-br from-cyan-50 to-cyan-100 p-3 text-center">
-                      <div className="text-xs text-cyan-600 font-medium">Dice Score</div>
-                      <div className="text-lg font-bold text-cyan-700">{extractedData.results.diceScore}%</div>
+                    <div className="rounded-lg bg-gradient-to-br from-cyan-50 to-cyan-100 p-3 text-center flex flex-col items-center">
+                      <div className="text-xs text-cyan-600 font-medium uppercase mb-1">Dice Score</div>
+                      <div className="text-lg font-bold text-cyan-700 w-full flex justify-center">
+                        <MetricValue value={extractedData.results.diceScore} />
+                      </div>
                     </div>
                   )}
                   {/* IoU (for segmentation) */}
                   {extractedData.results.iou && (
-                    <div className="rounded-lg bg-gradient-to-br from-sky-50 to-sky-100 p-3 text-center">
-                      <div className="text-xs text-sky-600 font-medium">IoU</div>
-                      <div className="text-lg font-bold text-sky-700">{extractedData.results.iou}%</div>
+                    <div className="rounded-lg bg-gradient-to-br from-sky-50 to-sky-100 p-3 text-center flex flex-col items-center">
+                      <div className="text-xs text-sky-600 font-medium uppercase mb-1">IoU</div>
+                      <div className="text-lg font-bold text-sky-700 w-full flex justify-center">
+                        <MetricValue value={extractedData.results.iou} />
+                      </div>
                     </div>
                   )}
                 </div>
