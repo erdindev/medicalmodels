@@ -11,8 +11,14 @@ interface Point {
     vy: number;
 }
 
+import { usePathname } from "next/navigation";
+
 export function MagneticMesh() {
+    const pathname = usePathname();
     const canvasRef = useRef<HTMLCanvasElement>(null);
+
+    // Only render on home page
+    const shouldRender = pathname === "/";
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -156,6 +162,8 @@ export function MagneticMesh() {
             cancelAnimationFrame(animationFrameId);
         };
     }, []);
+
+    if (!shouldRender) return null;
 
     return (
         <canvas

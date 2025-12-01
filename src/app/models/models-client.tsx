@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Filter, X, Loader2, ChevronDown, ArrowUpDown } from "lucide-react";
 
 type ValidationFilter = "" | "retrospective" | "prospective" | "external";
@@ -74,6 +75,8 @@ const MODALITIES = [
 ];
 
 export function ModelsClient({ specialties, journals, totalCount }: ModelsClientProps) {
+  const searchParams = useSearchParams();
+
   const [models, setModels] = useState<ModelData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -81,25 +84,33 @@ export function ModelsClient({ specialties, journals, totalCount }: ModelsClient
   const [hasMore, setHasMore] = useState(true);
   const [total, setTotal] = useState(totalCount);
 
-  // Existing Filters
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedSpecialty, setSelectedSpecialty] = useState("");
-  const [selectedValidation, setSelectedValidation] = useState<ValidationFilter>("");
-  const [selectedAccess, setSelectedAccess] = useState<AccessFilter>("");
-  const [fdaOnly, setFdaOnly] = useState(false);
-  const [ceOnly, setCeOnly] = useState(false);
-  const [gdprOnly, setGdprOnly] = useState(false);
+  // Initialize filters from URL
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
+  const [selectedSpecialty, setSelectedSpecialty] = useState(searchParams.get("specialty") || "");
+  const [selectedValidation, setSelectedValidation] = useState<ValidationFilter>((searchParams.get("validation") as ValidationFilter) || "");
+  const [selectedAccess, setSelectedAccess] = useState<AccessFilter>((searchParams.get("access") as AccessFilter) || "");
+  const [fdaOnly, setFdaOnly] = useState(searchParams.get("fda") === "true");
+  const [ceOnly, setCeOnly] = useState(searchParams.get("ce") === "true");
+  const [gdprOnly, setGdprOnly] = useState(searchParams.get("gdpr") === "true");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [selectedArchitecture, setSelectedArchitecture] = useState("");
-  const [selectedJournal, setSelectedJournal] = useState("");
+  const [selectedArchitecture, setSelectedArchitecture] = useState(searchParams.get("architecture") || "");
+  const [selectedJournal, setSelectedJournal] = useState(searchParams.get("journal") || "");
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   // New Filters
-  const [selectedModalities, setSelectedModalities] = useState<string[]>([]);
-  const [aucRange, setAucRange] = useState<[number, number]>([0, 100]);
-  const [accRange, setAccRange] = useState<[number, number]>([0, 100]);
-  const [sortBy, setSortBy] = useState<SortOption>("date");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [selectedModalities, setSelectedModalities] = useState<string[]>(
+    searchParams.get("modality") ? searchParams.get("modality")!.split(",") : []
+  );
+  const [aucRange, setAucRange] = useState<[number, number]>([
+    Number(searchParams.get("aucMin")) || 0,
+    Number(searchParams.get("aucMax")) || 100
+  ]);
+  const [accRange, setAccRange] = useState<[number, number]>([
+    Number(searchParams.get("accMin")) || 0,
+    Number(searchParams.get("accMax")) || 100
+  ]);
+  const [sortBy, setSortBy] = useState<SortOption>((searchParams.get("sortBy") as SortOption) || "date");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">((searchParams.get("sortOrder") as "asc" | "desc") || "desc");
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -255,15 +266,13 @@ export function ModelsClient({ specialties, journals, totalCount }: ModelsClient
     );
   };
 
-  // Filter sidebar content (shared between mobile and desktop)
   const FilterContent = ({ isMobile = false }: { isMobile?: boolean }) => (
-    <div className="space-y-6">
-      {!isMobile && <h2 className="text-lg font-semibold text-primary">Filters</h2>}
+    <div className="space-y-1">
+      {!isMobile && <h2 className="mb-4 text-lg font-semibold text-primary">Filters</h2>}
 
       {/* Imaging Modality */}
-      <div>
-        <h3 className="mb-3 text-sm font-semibold text-foreground">IMAGING MODALITY</h3>
-        <div className="space-y-2 max-h-48 overflow-y-auto">
+      <FilterSection title="IMAGING MODALITY" count={selectedModalities.length}>
+        <div className="space-y-2">
           {MODALITIES.map((mod) => (
             <label key={mod.label} className="flex cursor-pointer items-center gap-2 text-sm">
               <input
@@ -277,11 +286,10 @@ export function ModelsClient({ specialties, journals, totalCount }: ModelsClient
             </label>
           ))}
         </div>
-      </div>
+      </FilterSection>
 
       {/* AUC Range */}
-      <div>
-        <h3 className="mb-3 text-sm font-semibold text-foreground">AUC RANGE</h3>
+      <FilterSection title="AUC RANGE" count={aucRange[0] > 0 || aucRange[1] < 100 ? 1 : 0}>
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <input
@@ -312,11 +320,10 @@ export function ModelsClient({ specialties, journals, totalCount }: ModelsClient
             className="w-full accent-primary"
           />
         </div>
-      </div>
+      </FilterSection>
 
       {/* Accuracy Range */}
-      <div>
-        <h3 className="mb-3 text-sm font-semibold text-foreground">ACCURACY RANGE</h3>
+      <FilterSection title="ACCURACY RANGE" count={accRange[0] > 0 || accRange[1] < 100 ? 1 : 0}>
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <input
@@ -347,12 +354,11 @@ export function ModelsClient({ specialties, journals, totalCount }: ModelsClient
             className="w-full accent-primary"
           />
         </div>
-      </div>
+      </FilterSection>
 
       {/* Specialty */}
-      <div>
-        <h3 className="mb-3 text-sm font-semibold text-foreground">SPECIALTY</h3>
-        <div className="space-y-2 max-h-40 overflow-y-auto">
+      <FilterSection title="SPECIALTY" count={selectedSpecialty ? 1 : 0}>
+        <div className="space-y-2">
           {specialties.map((s) => (
             <label key={s} className="flex cursor-pointer items-center gap-2 text-sm">
               <input
@@ -366,11 +372,10 @@ export function ModelsClient({ specialties, journals, totalCount }: ModelsClient
             </label>
           ))}
         </div>
-      </div>
+      </FilterSection>
 
       {/* Architecture */}
-      <div>
-        <h3 className="mb-3 text-sm font-semibold text-foreground">ARCHITECTURE</h3>
+      <FilterSection title="ARCHITECTURE" count={selectedArchitecture ? 1 : 0}>
         <div className="space-y-2">
           {["CNN", "Transformer", "ResNet", "U-Net", "VGG", "Inception", "DenseNet", "LSTM"].map((arch) => (
             <label key={arch} className="flex cursor-pointer items-center gap-2 text-sm">
@@ -385,11 +390,10 @@ export function ModelsClient({ specialties, journals, totalCount }: ModelsClient
             </label>
           ))}
         </div>
-      </div>
+      </FilterSection>
 
       {/* Validation */}
-      <div>
-        <h3 className="mb-3 text-sm font-semibold text-foreground">VALIDATION</h3>
+      <FilterSection title="VALIDATION" count={selectedValidation ? 1 : 0}>
         <div className="space-y-2">
           {[
             { value: "retrospective", label: "Retrospective" },
@@ -408,11 +412,10 @@ export function ModelsClient({ specialties, journals, totalCount }: ModelsClient
             </label>
           ))}
         </div>
-      </div>
+      </FilterSection>
 
       {/* Regulatory */}
-      <div>
-        <h3 className="mb-3 text-sm font-semibold text-foreground">REGULATORY</h3>
+      <FilterSection title="REGULATORY" count={(fdaOnly ? 1 : 0) + (ceOnly ? 1 : 0) + (gdprOnly ? 1 : 0)}>
         <div className="space-y-2">
           <label className="flex cursor-pointer items-center gap-2 text-sm">
             <input
@@ -442,11 +445,10 @@ export function ModelsClient({ specialties, journals, totalCount }: ModelsClient
             <span className="text-muted-foreground hover:text-foreground">GDPR Compliant</span>
           </label>
         </div>
-      </div>
+      </FilterSection>
 
       {/* Journal */}
-      <div>
-        <h3 className="mb-3 text-sm font-semibold text-foreground">JOURNAL</h3>
+      <FilterSection title="JOURNAL" count={selectedJournal ? 1 : 0}>
         <select
           value={selectedJournal}
           onChange={(e) => setSelectedJournal(e.target.value)}
@@ -457,14 +459,14 @@ export function ModelsClient({ specialties, journals, totalCount }: ModelsClient
             <option key={j} value={j}>{j}</option>
           ))}
         </select>
-      </div>
+      </FilterSection>
     </div>
   );
 
   return (
-    <div className="h-[calc(100vh-56px)] flex flex-col overflow-hidden">
+    <div className="min-h-[calc(100vh-56px)] flex flex-col">
       {/* Header - Search Bar */}
-      <div className="shrink-0 border-b border-border bg-card shadow-sm">
+      <div className="sticky top-14 z-30 shrink-0 border-b border-border bg-card shadow-sm">
         <div className="mx-auto max-w-7xl px-3 sm:px-4 py-3 sm:py-4">
           <div className="relative">
             <svg
@@ -490,8 +492,8 @@ export function ModelsClient({ specialties, journals, totalCount }: ModelsClient
         </div>
       </div>
 
-      <div className="flex-1 overflow-hidden mx-auto max-w-7xl px-3 sm:px-6 py-4 sm:py-6 w-full">
-        <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 w-full h-full">
+      <div className="flex-1 mx-auto max-w-7xl px-3 sm:px-6 py-4 sm:py-6 w-full">
+        <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 w-full">
           {/* Mobile Filter Button */}
           <button
             onClick={() => setShowMobileFilters(true)}
@@ -534,14 +536,14 @@ export function ModelsClient({ specialties, journals, totalCount }: ModelsClient
           )}
 
           {/* Filters Sidebar - Desktop */}
-          <aside className="w-72 shrink-0 hidden lg:block h-full overflow-y-auto">
+          <aside className="w-72 shrink-0 hidden lg:block h-fit sticky top-[135px] max-h-[calc(100vh-140px)] overflow-y-auto no-scrollbar">
             <div className="pr-4">
               <FilterContent />
             </div>
           </aside>
 
           {/* Main Content */}
-          <main className="flex-1 min-w-0 w-full h-full flex flex-col overflow-hidden">
+          <main className="flex-1 min-w-0 w-full flex flex-col">
             {/* Results Header with Sort */}
             <div className="shrink-0 mb-4 sm:mb-6 flex flex-wrap items-center justify-between gap-2">
               <p className="text-xs sm:text-sm text-muted-foreground">
@@ -652,7 +654,7 @@ export function ModelsClient({ specialties, journals, totalCount }: ModelsClient
             )}
 
             {/* Scrollable Content Area */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1">
               {/* Loading State */}
               {isLoading && (
                 <div className="py-12 flex justify-center">
@@ -810,51 +812,56 @@ function ModelCard({ model, viewMode }: { model: ModelData; viewMode: "grid" | "
           </div>
         </div>
 
-        {/* Tags Row */}
+        {/* Tags & Metrics Row */}
         <div className="mt-3 flex flex-wrap gap-1.5">
-          <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${specialtyColors[model.specialty] || "bg-gray-100 text-gray-700"}`}>
+          <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${specialtyColors[model.specialty] || "bg-gray-100 text-gray-700"}`}>
             {model.specialty}
           </span>
           {modality && (
-            <span className="rounded-full px-2 py-0.5 text-xs font-medium bg-slate-200 text-slate-700">
+            <span className="rounded-full px-2 py-0.5 text-[10px] font-medium bg-slate-200 text-slate-700">
               {modality}
             </span>
           )}
           {model.architecture && (
-            <span className="rounded-full px-2 py-0.5 text-xs font-medium bg-blue-50 text-blue-600 border border-blue-200">
+            <span className="rounded-full px-2 py-0.5 text-[10px] font-medium bg-blue-50 text-blue-600 border border-blue-200">
               {model.architecture}
             </span>
           )}
-        </div>
 
-        {/* Metrics - always at bottom */}
-        <div className="mt-auto pt-4 grid grid-cols-2 gap-2">
+          {/* Metrics as compact badges */}
           {model.metrics?.auc > 0 && (
-            <div className="rounded-lg bg-emerald-50 px-2 py-1.5 text-center">
-              <div className="text-[10px] text-emerald-600 font-medium uppercase">AUC</div>
-              <div className="text-sm font-bold text-emerald-700">{(model.metrics.auc * 100).toFixed(1)}%</div>
-            </div>
+            <span className="rounded-full px-2 py-0.5 text-[10px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+              AUC {(model.metrics.auc * 100).toFixed(0)}%
+            </span>
           )}
           {model.metrics?.accuracy > 0 && (
-            <div className="rounded-lg bg-blue-50 px-2 py-1.5 text-center">
-              <div className="text-[10px] text-blue-600 font-medium uppercase">Accuracy</div>
-              <div className="text-sm font-bold text-blue-700">{(model.metrics.accuracy * 100).toFixed(1)}%</div>
-            </div>
-          )}
-          {model.metrics?.sensitivity > 0 && (
-            <div className="rounded-lg bg-purple-50 px-2 py-1.5 text-center">
-              <div className="text-[10px] text-purple-600 font-medium uppercase">Sensitivity</div>
-              <div className="text-sm font-bold text-purple-700">{(model.metrics.sensitivity * 100).toFixed(1)}%</div>
-            </div>
-          )}
-          {model.metrics?.specificity > 0 && (
-            <div className="rounded-lg bg-orange-50 px-2 py-1.5 text-center">
-              <div className="text-[10px] text-orange-600 font-medium uppercase">Specificity</div>
-              <div className="text-sm font-bold text-orange-700">{(model.metrics.specificity * 100).toFixed(1)}%</div>
-            </div>
+            <span className="rounded-full px-2 py-0.5 text-[10px] font-medium bg-blue-50 text-blue-700 border border-blue-200">
+              Acc {(model.metrics.accuracy * 100).toFixed(0)}%
+            </span>
           )}
         </div>
       </div>
     </Link>
+  );
+}
+
+function FilterSection({ title, children, count, defaultOpen = true }: { title: string, children: React.ReactNode, count?: number, defaultOpen?: boolean }) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  return (
+    <div className="border-b border-border/50 py-4 last:border-0">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex w-full items-center justify-between text-sm font-semibold text-foreground hover:text-primary group"
+      >
+        <span>{title}</span>
+        <div className="flex items-center gap-2">
+          {count !== undefined && count > 0 && (
+            <span className="bg-primary/10 text-primary text-xs px-1.5 py-0.5 rounded-full">{count}</span>
+          )}
+          <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform group-hover:text-primary ${isOpen ? "rotate-180" : ""}`} />
+        </div>
+      </button>
+      {isOpen && <div className="mt-3 animate-in slide-in-from-top-2 duration-200">{children}</div>}
+    </div>
   );
 }

@@ -53,7 +53,7 @@ export function Navbar() {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-border bg-background/70 backdrop-blur-md">
+    <nav className={`sticky top-0 z-[100] border-b border-border transition-colors duration-200 ${isOpen ? 'bg-white' : 'bg-background/70 backdrop-blur-md'}`}>
       <div className="mx-auto max-w-6xl px-4">
         <div className="flex h-14 items-center justify-between">
           {/* Logo */}
@@ -70,9 +70,20 @@ export function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`font-bold ${pathname.startsWith(link.href) ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                className={`font-bold relative py-4 ${pathname.startsWith(link.href) ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
               >
                 {link.label}
+                {pathname.startsWith(link.href) && (
+                  <motion.div
+                    layoutId="navbar-indicator"
+                    className="absolute bottom-3 left-0 right-0 h-0.5 bg-[rgb(100,100,255)]"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <div className="absolute top-full left-0 right-0 h-3 bg-gradient-to-b from-[rgba(100,100,255,0.3)] to-transparent blur-[2px]" />
+                  </motion.div>
+                )}
               </Link>
             ))}
             <UserMenu />
@@ -80,10 +91,10 @@ export function Navbar() {
 
           {/* Mobile Burger */}
           <button
-            className="md:hidden z-50 relative text-foreground"
-            onClick={() => setIsOpen(!isOpen)}
+            className={`md:hidden z-50 relative text-foreground ${isOpen ? 'opacity-0 pointer-events-none' : ''}`}
+            onClick={() => setIsOpen(true)}
           >
-            {isOpen ? <X className="h-6 w-6 text-black" /> : <Menu className="h-6 w-6" />}
+            <Menu className="h-6 w-6" />
           </button>
 
           {/* Mobile Fullscreen Menu */}
@@ -94,22 +105,31 @@ export function Navbar() {
                 animate="open"
                 exit="closed"
                 variants={menuVariants}
-                className="fixed inset-0 bg-white z-40 flex flex-col items-center justify-center"
+                className="fixed top-0 left-0 w-screen h-screen bg-white z-[110] flex flex-col items-end justify-end overflow-hidden pb-[20vh] pr-6"
+                style={{ top: 0, left: 0, right: 0, bottom: 0, position: 'fixed', height: '100vh', width: '100vw' }}
               >
-                <div className="flex flex-col gap-8 text-center">
+                <div className="flex flex-col gap-6 text-right">
+                  <motion.div variants={linkVariants} className="flex justify-end mb-2">
+                    <button
+                      onClick={() => setIsOpen(false)}
+                      className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                    >
+                      <X className="h-8 w-8 text-black" />
+                    </button>
+                  </motion.div>
                   {links.map((link) => (
                     <motion.div key={link.href} variants={linkVariants}>
                       <Link
                         href={link.href}
                         onClick={() => setIsOpen(false)}
-                        className="text-4xl font-black text-black hover:text-primary transition-colors"
+                        className="text-4xl font-black text-black hover:text-primary transition-colors block"
                       >
                         {link.label}
                       </Link>
                     </motion.div>
                   ))}
                   <motion.div variants={linkVariants}>
-                    <div onClick={() => setIsOpen(false)}>
+                    <div onClick={() => setIsOpen(false)} className="flex justify-end">
                       <UserMenu />
                     </div>
                   </motion.div>
