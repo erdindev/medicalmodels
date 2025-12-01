@@ -12,13 +12,64 @@ import { Analytics } from "@/components/analytics";
 
 const lato = Lato({
   subsets: ["latin"],
-  weight: ["100", "300", "400", "700", "900"],
+  weight: ["400", "700"],
+  display: "swap",
   variable: "--font-lato",
+  preload: true,
 });
 
 export const metadata: Metadata = {
-  title: "MedicalModels - AI Models for Healthcare",
-  description: "Discover, compare, and evaluate medical AI models for clinical and research applications",
+  title: {
+    default: "MedicalModels - Medical AI Model Database",
+    template: "%s | MedicalModels"
+  },
+  description: "Comprehensive database of 1,500+ peer-reviewed medical AI models. Compare performance metrics, validation data, and clinical applications across radiology, pathology, cardiology, and more.",
+  keywords: ["medical AI", "healthcare AI", "machine learning medicine", "clinical AI models", "radiology AI", "pathology AI", "medical imaging AI", "deep learning healthcare", "AI diagnosis", "medical model comparison"],
+  authors: [{ name: "MedicalModels" }],
+  creator: "MedicalModels",
+  publisher: "MedicalModels",
+  metadataBase: new URL("https://medicalmodels.co"),
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://medicalmodels.co",
+    siteName: "MedicalModels",
+    title: "MedicalModels - Medical AI Model Database",
+    description: "Comprehensive database of 1,500+ peer-reviewed medical AI models. Compare performance metrics, validation data, and clinical applications.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "MedicalModels - Medical AI Model Database",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MedicalModels - Medical AI Model Database",
+    description: "Comprehensive database of 1,500+ peer-reviewed medical AI models.",
+    images: ["/og-image.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  verification: {
+    // Add when you have these
+    // google: "your-google-verification-code",
+    // yandex: "your-yandex-verification-code",
+  },
 };
 
 export default function RootLayout({

@@ -44,7 +44,7 @@ interface SpecialtySectionProps {
 
 export function SpecialtySection({ specialties }: SpecialtySectionProps) {
   return (
-    <section className="pt-16 pb-8 relative z-50">
+    <section className="pt-8 pb-6 relative z-50">
       <div className="mx-auto max-w-4xl px-4">
         <motion.p
           initial={{ opacity: 0 }}
@@ -104,7 +104,7 @@ export function FeaturesSection({ modelCount }: FeaturesSectionProps) {
   ];
 
   return (
-    <section className="border-t border-border py-16">
+    <section className="border-t border-border py-8">
       <div className="mx-auto max-w-5xl px-4">
         <motion.div
           className="grid gap-8 md:grid-cols-3"
@@ -118,7 +118,7 @@ export function FeaturesSection({ modelCount }: FeaturesSectionProps) {
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 {feature.icon}
               </div>
-              <h3 className="font-semibold text-foreground mb-2">{feature.title}</h3>
+              <h2 className="font-semibold text-foreground mb-2">{feature.title}</h2>
               <p className="text-sm text-muted-foreground">{feature.description}</p>
             </motion.div>
           ))}

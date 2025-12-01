@@ -13,7 +13,7 @@ export default function DatenschutzPage() {
                         Dr. med. Erdin Tokmak<br />
                         Ingelheimer Str. 15<br />
                         45145 Essen, Deutschland<br />
-                        E-Mail: hallo@navigatesolutions.de<br />
+                        E-Mail: docerdin@pm.me<br />
                         Website: https://navigatesolution.de
                     </p>
                     <p className="mt-2">
@@ -127,7 +127,7 @@ export default function DatenschutzPage() {
 
                     <h4 className="font-medium text-foreground mt-4">4.3 Cookie-Einstellungen verwalten</h4>
                     <p>Sie können Ihre Cookie-Einstellungen jederzeit ändern. Beim ersten Besuch unserer Website wird Ihnen ein Cookie-Banner angezeigt, über das Sie Ihre Präferenzen festlegen können.</p>
-                    <p className="mt-2">Hinweis: Wenn Sie das Cookie-Banner erneut aufrufen möchten, löschen Sie bitte den localStorage-Eintrag cookie-consent in Ihren Browser-Einstellungen oder kontaktieren Sie uns unter hallo@navigatesolutions.de.</p>
+                    <p className="mt-2">Hinweis: Wenn Sie das Cookie-Banner erneut aufrufen möchten, löschen Sie bitte den localStorage-Eintrag cookie-consent in Ihren Browser-Einstellungen oder kontaktieren Sie uns unter docerdin@pm.me.</p>
 
                     <h3 className="text-lg font-medium text-foreground mt-6 mb-2">5. Weitergabe von Daten an Dritte</h3>
                     <h4 className="font-medium text-foreground mt-2">5.1 Hosting</h4>
@@ -161,7 +161,7 @@ export default function DatenschutzPage() {
                         <li><strong>Widerspruchsrecht (Art. 21 DSGVO):</strong> Sie können der Verarbeitung Ihrer Daten widersprechen.</li>
                         <li><strong>Beschwerderecht (Art. 77 DSGVO):</strong> Sie können sich bei einer Datenschutzaufsichtsbehörde beschweren.</li>
                     </ul>
-                    <p className="mt-4">Kontakt zur Ausübung Ihrer Rechte: hallo@navigatesolutions.de</p>
+                    <p className="mt-4">Kontakt zur Ausübung Ihrer Rechte: docerdin@pm.me</p>
 
                     <h3 className="text-lg font-medium text-foreground mt-6 mb-2">7. Datensicherheit</h3>
                     <p>Wir verwenden innerhalb des Website-Besuchs das verbreitete SSL-Verfahren (Secure Socket Layer) in Verbindung mit der jeweils höchsten Verschlüsselungsstufe, die von Ihrem Browser unterstützt wird.</p>

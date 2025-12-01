@@ -3,6 +3,7 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { MedicalModel } from "@/lib/data";
 
 interface HeroSearchProps {
@@ -25,18 +26,9 @@ export function HeroSearch({ modelCount = 0, specialtyCount = 0 }: HeroSearchPro
             try {
                 const res = await fetch('/api/models?limit=100');
                 const data = await res.json();
-                const mapped = data.map((m: any) => ({
-                    ...m,
-                    specialty: m.specialty?.name || 'General',
-                    metrics: {
-                        sensitivity: m.metrics?.sensitivity ?? 0,
-                        specificity: m.metrics?.specificity ?? 0,
-                        auc: m.metrics?.auc ?? 0,
-                        accuracy: m.metrics?.accuracy ?? 0
-                    },
-                    tags: m.tags?.map((t: any) => t.tag.name) || []
-                }));
-                setModels(mapped);
+                // API returns { models: [...], pagination: {...} }
+                const modelList = data.models || [];
+                setModels(modelList);
             } catch (e) {
                 console.error(e);
             }
@@ -122,9 +114,9 @@ export function HeroSearch({ modelCount = 0, specialtyCount = 0 }: HeroSearchPro
                 />
             )}
 
-            <section className="relative z-50 mx-auto max-w-4xl px-4 min-h-[40vh] flex flex-col items-center justify-center text-center">
+            <section className="relative z-50 mx-auto max-w-4xl px-4 h-[calc(50vh-56px)] flex flex-col items-center justify-center text-center">
                 {/* Minimal headline */}
-                <h1 className="mb-4 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl relative z-[60]">
+                <h1 className="mb-4 text-3xl font-semibold tracking-tight text-gray-500 sm:text-4xl relative z-[60]">
                     Discover Medical AI Models
                 </h1>
 
@@ -133,10 +125,13 @@ export function HeroSearch({ modelCount = 0, specialtyCount = 0 }: HeroSearchPro
                 <form onSubmit={handleSearch} className="relative z-50 mx-auto w-full">
                     {/* Background image behind search */}
                     <div className="absolute -inset-y-24 -inset-x-16 -z-10 overflow-hidden rounded-3xl bg-background">
-                        <img
+                        <Image
                             src="/bgfarbe.jpg"
                             alt=""
-                            className="absolute inset-0 h-full w-full object-fill opacity-40 blur-[2px]"
+                            fill
+                            priority
+                            className="object-fill opacity-40 blur-[2px]"
+                            sizes="100vw"
                         />
                     </div>
 

@@ -24,7 +24,7 @@ export default function ImpressumPage() {
                 <section>
                     <h2 className="text-xl font-semibold text-foreground mb-4">Kontakt</h2>
                     <p>
-                        E-Mail: hallo@navigatesolutions.de<br />
+                        E-Mail: docerdin@pm.me<br />
                         Website: https://navigatesolution.de
                     </p>
                 </section>
