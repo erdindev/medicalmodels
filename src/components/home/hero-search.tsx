@@ -116,7 +116,7 @@ export function HeroSearch({ modelCount = 0, specialtyCount = 0 }: HeroSearchPro
 
             <section className="relative z-50 mx-auto max-w-4xl px-4 h-[calc(50vh-56px)] flex flex-col items-center justify-center text-center">
                 {/* Minimal headline */}
-                <h1 className="mb-4 text-3xl font-semibold tracking-tight text-gray-500 sm:text-4xl relative z-[60]">
+                <h1 className="mb-4 text-3xl font-black tracking-tight text-white sm:text-4xl relative z-[60]">
                     Discover Medical AI Models
                 </h1>
 
@@ -124,13 +124,13 @@ export function HeroSearch({ modelCount = 0, specialtyCount = 0 }: HeroSearchPro
                 {/* Search Input - Large, centered, prominent */}
                 <form onSubmit={handleSearch} className="relative z-50 mx-auto w-full">
                     {/* Background image behind search */}
-                    <div className="absolute -inset-y-24 -inset-x-16 -z-10 overflow-hidden rounded-3xl bg-background">
+                    <div className="absolute -inset-y-24 -inset-x-16 -z-10 overflow-hidden rounded-3xl bg-transparent">
                         <Image
                             src="/bgfarbe.jpg"
                             alt=""
                             fill
                             priority
-                            className="object-fill opacity-40 blur-[2px]"
+                            className="object-fill opacity-80 blur-[2px]"
                             sizes="100vw"
                         />
                     </div>
@@ -184,7 +184,7 @@ export function HeroSearch({ modelCount = 0, specialtyCount = 0 }: HeroSearchPro
                                         setIsFocused(false);
                                     }}
                                     className={`flex items-center justify-between px-4 py-3 transition-colors ${idx !== results.length - 1 ? 'border-b border-border/50' : ''
-                                        } ${selectedIndex === idx ? 'bg-[#C0EFFF]' : 'hover:bg-[#C0EFFF]'}`}
+                                        } ${selectedIndex === idx ? 'bg-[rgba(200,50,255,0.1)]' : 'hover:bg-[rgba(200,50,255,0.1)]'}`}
                                 >
                                     <div className="text-left">
                                         <p className="font-medium text-foreground text-sm">{model.name}</p>
@@ -200,7 +200,7 @@ export function HeroSearch({ modelCount = 0, specialtyCount = 0 }: HeroSearchPro
                             <Link
                                 href={`/models${query ? `?q=${encodeURIComponent(query)}` : ''}`}
                                 onClick={() => setIsFocused(false)}
-                                className={`block px-4 py-3 text-center text-sm text-primary transition-colors border-t border-border ${selectedIndex === results.length ? 'bg-[#C0EFFF]' : 'hover:bg-[#C0EFFF]'
+                                className={`block px-4 py-3 text-center text-sm text-primary transition-colors border-t border-border ${selectedIndex === results.length ? 'bg-[rgba(200,50,255,0.1)]' : 'hover:bg-[rgba(200,50,255,0.1)]'
                                     }`}
                             >
                                 View all models →
@@ -210,7 +210,7 @@ export function HeroSearch({ modelCount = 0, specialtyCount = 0 }: HeroSearchPro
                 </form>
 
                 {/* Trusted by line */}
-                <p className="mt-6 text-sm text-muted-foreground relative z-[60]">
+                <p className="mt-6 text-sm text-white font-bold relative z-30">
                     Trusted by professionals
                 </p>
             </section>

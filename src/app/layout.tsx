@@ -1,20 +1,29 @@
 import type { Metadata } from "next";
-import { Lato } from "next/font/google";
+import { Lato, Jost } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { Providers } from "@/components/providers";
 import { Footer } from "@/components/footer";
 import { CookieConsent } from "@/components/cookie-consent";
+import { MagneticMesh } from "@/components/magnetic-mesh";
 
 import { Analytics } from "@/components/analytics";
 
 
 const lato = Lato({
   subsets: ["latin"],
-  weight: ["400", "700"],
+  weight: ["400", "700", "900"],
   display: "swap",
   variable: "--font-lato",
+  preload: true,
+});
+
+const jost = Jost({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+  variable: "--font-jost",
   preload: true,
 });
 
@@ -89,9 +98,9 @@ export default function RootLayout({
           {`window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};plausible.init();`}
         </Script>
       </head>
-      <body className={lato.className}>
+      <body className={`${lato.className} ${jost.variable}`}>
         <Providers>
-
+          <MagneticMesh />
           <Navbar />
           <main className="min-h-screen">{children}</main>
           <CookieConsent />

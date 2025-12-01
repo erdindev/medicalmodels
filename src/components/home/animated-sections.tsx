@@ -44,7 +44,7 @@ interface SpecialtySectionProps {
 
 export function SpecialtySection({ specialties }: SpecialtySectionProps) {
   return (
-    <section className="pt-8 pb-6 relative z-50">
+    <section className="pt-8 pb-6 relative z-30">
       <div className="mx-auto max-w-4xl px-4">
         <motion.p
           initial={{ opacity: 0 }}
@@ -64,9 +64,9 @@ export function SpecialtySection({ specialties }: SpecialtySectionProps) {
             <motion.div key={s.id} variants={item}>
               <Link
                 href={`/models?specialty=${s.name}`}
-                className="group flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm transition-all hover:border-primary/50 hover:bg-primary/5"
+                className="group flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm transition-all hover:border-[rgba(200,50,255,0.5)] hover:bg-[rgba(200,50,255,0.1)]"
               >
-                <span className="text-muted-foreground group-hover:text-primary">
+                <span className="text-muted-foreground group-hover:text-[rgb(200,50,255)]">
                   {specialtyIcons[s.name] || <Activity className="h-4 w-4" />}
                 </span>
                 <span className="text-foreground font-medium">{s.name}</span>

@@ -111,8 +111,8 @@ export function ModelsClient({ specialties, journals, totalCount }: ModelsClient
       if (e.key === 'f' && !e.metaKey && !e.ctrlKey && !e.altKey) {
         const activeElement = document.activeElement;
         const isInputFocused = activeElement?.tagName === 'INPUT' ||
-                               activeElement?.tagName === 'TEXTAREA' ||
-                               activeElement?.getAttribute('contenteditable') === 'true';
+          activeElement?.tagName === 'TEXTAREA' ||
+          activeElement?.getAttribute('contenteditable') === 'true';
 
         if (!isInputFocused && searchInputRef.current) {
           e.preventDefault();
@@ -746,7 +746,7 @@ function ModelCard({ model, viewMode }: { model: ModelData; viewMode: "grid" | "
   if (viewMode === "list") {
     return (
       <Link href={`/models/${model.slug}`} className="block">
-        <div className="cursor-pointer rounded-xl border-2 border-border p-3 sm:p-4 transition-all hover:border-primary/30 hover:shadow-md hover:bg-[#C0EFFF] overflow-hidden" style={{ backgroundColor: '#f5f5f5' }}>
+        <div className="cursor-pointer rounded-xl border-2 border-border p-3 sm:p-4 transition-all hover:border-primary/30 hover:shadow-md hover:bg-[rgba(200,50,255,0.1)] overflow-hidden" style={{ backgroundColor: '#f5f5f5' }}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div className="flex-1 min-w-0">
               <div className="flex flex-wrap items-center gap-2 sm:gap-3">
@@ -783,7 +783,7 @@ function ModelCard({ model, viewMode }: { model: ModelData; viewMode: "grid" | "
 
   return (
     <Link href={`/models/${model.slug}`} className="h-full block">
-      <div className="group flex h-full cursor-pointer flex-col rounded-xl border-2 border-border p-4 sm:p-5 transition-all hover:border-primary/20 hover:shadow-lg hover:bg-[#C0EFFF] overflow-hidden" style={{ backgroundColor: '#f5f5f5' }}>
+      <div className="group flex h-full cursor-pointer flex-col rounded-xl border-2 border-border p-4 sm:p-5 transition-all hover:border-primary/20 hover:shadow-lg hover:bg-[rgba(200,50,255,0.1)] overflow-hidden" style={{ backgroundColor: '#f5f5f5' }}>
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
