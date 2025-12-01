@@ -37,14 +37,17 @@ export async function GET(req: Request) {
 
         // Build where clause
         const where: Prisma.MedicalModelWhereInput = {};
+        const andConditions: Prisma.MedicalModelWhereInput[] = [];
 
         if (query) {
             const q = query.toLowerCase();
-            where.OR = [
-                { name: { contains: q } },
-                { description: { contains: q } },
-                { specialty: { name: { contains: q } } },
-            ];
+            andConditions.push({
+                OR: [
+                    { name: { contains: q } },
+                    { description: { contains: q } },
+                    { specialty: { name: { contains: q } } },
+                ]
+            });
         }
 
         if (specialty) {
@@ -85,14 +88,17 @@ export async function GET(req: Request) {
         if (modality) {
             const modalityTerms = modality.split(',').filter(Boolean);
             if (modalityTerms.length > 0) {
-                where.OR = [
-                    ...(where.OR || []),
-                    ...modalityTerms.flatMap(term => [
+                andConditions.push({
+                    OR: modalityTerms.flatMap(term => [
                         { name: { contains: term } },
                         { description: { contains: term } }
                     ])
-                ];
+                });
             }
+        }
+
+        if (andConditions.length > 0) {
+            where.AND = andConditions;
         }
 
         // AUC range filter
@@ -133,10 +139,10 @@ export async function GET(req: Request) {
             orderBy: sortBy === 'auc'
                 ? { metrics: { auc: sortOrder as 'asc' | 'desc' } }
                 : sortBy === 'accuracy'
-                ? { metrics: { accuracy: sortOrder as 'asc' | 'desc' } }
-                : sortBy === 'name'
-                ? { name: sortOrder as 'asc' | 'desc' }
-                : { createdAt: sortOrder as 'asc' | 'desc' },
+                    ? { metrics: { accuracy: sortOrder as 'asc' | 'desc' } }
+                    : sortBy === 'name'
+                        ? { name: sortOrder as 'asc' | 'desc' }
+                        : { createdAt: sortOrder as 'asc' | 'desc' },
             skip,
             take: limit
         });
