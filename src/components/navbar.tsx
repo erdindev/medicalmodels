@@ -53,8 +53,12 @@ export function Navbar() {
   ];
 
   return (
-    <nav className={`sticky top-0 z-[100] border-b border-border transition-colors duration-200 ${isOpen ? 'bg-white' : 'bg-background/70 backdrop-blur-md'}`}>
-      <div className="mx-auto max-w-6xl px-4">
+    <nav className={`sticky top-0 z-[100] transition-colors duration-200 ${isOpen ? 'bg-white' : ''}`}>
+      {/* Gradient background - white fading to transparent */}
+      {!isOpen && (
+        <div className="absolute inset-0 bg-gradient-to-b from-white via-white/90 to-transparent pointer-events-none" />
+      )}
+      <div className="mx-auto max-w-6xl px-4 relative">
         <div className="flex h-14 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 text-foreground z-50 relative">

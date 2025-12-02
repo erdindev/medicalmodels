@@ -127,3 +127,50 @@ export function FeaturesSection({ modelCount }: FeaturesSectionProps) {
     </section>
   );
 }
+
+export function AboutSection() {
+  return (
+    <section className="border-t border-border py-20">
+      <div className="mx-auto max-w-4xl px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.6 }}
+          className="space-y-16"
+        >
+          {/* Our Mission */}
+          <div className="grid md:grid-cols-[1fr_2fr] gap-6 md:gap-12 items-start">
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight bg-gradient-to-r from-primary via-[rgb(200,50,255)] to-primary bg-clip-text text-transparent">
+              Our Mission
+            </h2>
+            <div className="space-y-4">
+              <p className="text-muted-foreground leading-relaxed text-base">
+                We believe AI will transform healthcare—but only if clinicians can find, understand, and trust these tools.
+              </p>
+              <p className="text-muted-foreground leading-relaxed text-base">
+                MedicalModels bridges the gap between research and practice by curating peer-reviewed AI models
+                with transparent performance metrics, making it easier to evaluate what works.
+              </p>
+            </div>
+          </div>
+
+          {/* Our Team */}
+          <div className="grid md:grid-cols-[1fr_2fr] gap-6 md:gap-12 items-start">
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight bg-gradient-to-r from-[rgb(200,50,255)] via-primary to-[rgb(200,50,255)] bg-clip-text text-transparent">
+              Our Team
+            </h2>
+            <div className="space-y-4">
+              <p className="text-muted-foreground leading-relaxed text-base">
+                Built by physicians and engineers who understand both clinical workflows and machine learning.
+              </p>
+              <p className="text-muted-foreground leading-relaxed text-base">
+                We&apos;re committed to rigorous curation—every model is verified against its source publication.
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}

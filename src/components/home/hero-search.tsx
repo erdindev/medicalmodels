@@ -123,36 +123,36 @@ export function HeroSearch({ modelCount = 0, specialtyCount = 0 }: HeroSearchPro
     return (
         <div className="relative">
             {/* Dimming Overlay */}
-            {isFocused && (
-                <div
-                    className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[2px] transition-all duration-200"
-                    onClick={() => setIsFocused(false)}
-                />
-            )}
+            <div
+                className={`fixed inset-0 z-40 bg-black/20 backdrop-blur-[2px] transition-all duration-300 ease-out ${
+                    isFocused ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                }`}
+                onClick={() => setIsFocused(false)}
+            />
 
-            <section className="relative z-50 mx-auto max-w-4xl px-4 h-[calc(50vh-56px)] flex flex-col items-center justify-center text-center">
+            <section className="relative z-50 mx-auto max-w-5xl px-4 mt-24 py-20 flex flex-col items-center justify-center text-center gap-8">
+                {/* Background image - Layer 0 */}
+                <div className="hidden sm:block absolute inset-0 -z-10 overflow-hidden rounded-3xl bg-transparent">
+                    <Image
+                        src="/bgfarbe.jpg"
+                        alt=""
+                        fill
+                        priority
+                        className="object-fill opacity-80 blur-[2px]"
+                        sizes="100vw"
+                    />
+                </div>
+
                 {/* Minimal headline */}
-                <h1 className="mb-16 sm:mb-4 text-3xl font-black tracking-tight text-primary sm:text-white sm:text-4xl relative z-[60]">
+                <h1 className="text-3xl font-black tracking-tight text-primary sm:text-white sm:text-4xl relative z-[60]">
                     Discover Medical AI Models
                 </h1>
 
 
                 {/* Search Wrapper to handle layering */}
-                <div className="relative z-50 mx-auto w-full flex flex-col items-center">
-                    {/* Background image - Layer 0 */}
-                    <div className="hidden sm:block absolute -inset-y-12 inset-x-0 sm:-inset-y-24 sm:-inset-x-16 -z-10 overflow-hidden rounded-3xl bg-transparent">
-                        <Image
-                            src="/bgfarbe.jpg"
-                            alt=""
-                            fill
-                            priority
-                            className="object-fill opacity-80 blur-[2px]"
-                            sizes="100vw"
-                        />
-                    </div>
-
+                <div className="relative z-50 mx-auto w-full flex flex-col items-center gap-6">
                     {/* Search Input - Layer 2 (Top) */}
-                    <form ref={formRef} onSubmit={handleSearch} className="relative z-20 w-[70%] sm:w-full">
+                    <form ref={formRef} onSubmit={handleSearch} className="relative z-20 w-[90%] sm:w-[65%]">
                         <div className={`relative transition-transform duration-200 ${isFocused ? 'scale-[1.02]' : ''}`}>
                             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-5">
                                 <svg
@@ -233,8 +233,8 @@ export function HeroSearch({ modelCount = 0, specialtyCount = 0 }: HeroSearchPro
                     </form>
 
                     {/* Trusted by line - Layer 1 (Middle) */}
-                    <p className="mt-6 text-sm text-primary sm:text-white font-bold relative z-10">
-                        Trusted by professionals
+                    <p className="text-base sm:text-lg text-primary sm:text-white font-extrabold relative z-10">
+                        Trusted by Professionals
                     </p>
                 </div>
             </section>

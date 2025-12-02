@@ -9,6 +9,9 @@ const SpecialtySection = nextDynamic(() => import("@/components/home/animated-se
 const FeaturesSection = nextDynamic(() => import("@/components/home/animated-sections").then(mod => ({ default: mod.FeaturesSection })), {
   loading: () => <div className="py-8" />,
 });
+const AboutSection = nextDynamic(() => import("@/components/home/animated-sections").then(mod => ({ default: mod.AboutSection })), {
+  loading: () => <div className="py-16" />,
+});
 
 export const dynamic = "force-dynamic";
 
@@ -79,8 +82,19 @@ export default async function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <HeroSearch modelCount={stats.modelCount} specialtyCount={stats.specialtyCount} />
+
       <SpecialtySection specialties={topSpecialties} />
-      <FeaturesSection modelCount={stats.modelCount} />
+
+      {/* White background section with gradient fade from mesh */}
+      <div className="relative">
+        {/* Gradient overlay from transparent to white */}
+        <div className="absolute inset-x-0 -top-32 h-32 bg-gradient-to-b from-transparent to-white pointer-events-none z-10" />
+
+        <div className="bg-white relative z-20">
+          <FeaturesSection modelCount={stats.modelCount} />
+          <AboutSection />
+        </div>
+      </div>
     </div>
   );
 }
